@@ -8,9 +8,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Telegram.Bot.Examples.WebHook.Services
 {
-    public class ConfigureWebhook : IHostedService
+    public class WebhookConfigurator : IHostedService
     {
-        private readonly ILogger<ConfigureWebhook> _logger;
+        private readonly ILogger<WebhookConfigurator> _logger;
 
         private readonly TelegramBotConfiguration _botConfig;
 
@@ -18,7 +18,7 @@ namespace Telegram.Bot.Examples.WebHook.Services
 
         private readonly string _webhookAddress;
 
-        public ConfigureWebhook(ILogger<ConfigureWebhook> logger,
+        public WebhookConfigurator(ILogger<WebhookConfigurator> logger,
                                 TelegramBotConfiguration configuration,
                                 ConfiguredTelegramBotClient botClient)
         {

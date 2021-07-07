@@ -21,13 +21,16 @@ namespace WebApplication
 
     public class Startup
     {
+        private readonly IHostEnvironment _environment;
+
         private readonly IConfigurationSection _botConfiguration;
 
         private const string TELEGRAM_BOT_CONFIGURATION_SECTION = "TelegramBotConfiguration";
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostEnvironment environment)
         {
             Configuration = configuration;
+            _environment = environment;
             _botConfiguration = Configuration.GetSection(TELEGRAM_BOT_CONFIGURATION_SECTION);
         }
 
@@ -36,7 +39,7 @@ namespace WebApplication
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHostedService<ConfigureWebhook>();
+            ConfigureTelegramMode(services);
 
             // Register named HttpClient to get benefits of IHttpClientFactory
             // and consume it with ITelegramBotClient typed client.
@@ -54,6 +57,21 @@ namespace WebApplication
                     .AddNewtonsoftJson();
             
             services.Configure<TelegramBotConfiguration>(_botConfiguration);
+        }
+
+        private void ConfigureTelegramMode(IServiceCollection services)
+        {
+            services.AddSingleton<HandleUpdateService>();
+            
+            if (_environment.IsDevelopment())
+            {
+                services.AddSingleton<PollingUpdateHandler>();
+                services.AddHostedService<PollingConfigurator>();
+            }  
+            else 
+            {
+                services.AddHostedService<WebhookConfigurator>();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

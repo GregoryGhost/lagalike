@@ -15,16 +15,16 @@ namespace Telegram.Bot.Examples.WebHook.Services
 {
 public class HandleUpdateService
 {
-        private readonly ITelegramBotClient _botClient;
+        private readonly ConfiguredTelegramBotClient _botClient;
         private readonly ILogger<HandleUpdateService> _logger;
 
-        public HandleUpdateService(ITelegramBotClient botClient, ILogger<HandleUpdateService> logger)
+        public HandleUpdateService(ConfiguredTelegramBotClient botClient, ILogger<HandleUpdateService> logger)
         {
             _botClient = botClient;
             _logger = logger;
         }
 
-        public async Task EchoAsync(Update update)
+        public async Task HandleUpdateAsync(Update update)
         {
             var handler = update.Type switch
             {
