@@ -7,7 +7,11 @@ jobs:
     name: Clean up C# code base via R# CLT
     runs-on: ubuntu-latest
     env:
-      working-directory : ${{ secrets.PROJECT_WORKING_DIRECTORY }}
+      PROJECT_WORKING_DIRECTORY: ${{ secrets.PROJECT_WORKING_DIRECTORY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RESHARPER_PROFILE_NAME: ${{ secrets.RESHARPER_PROFILE_NAME }}
+      RESHARPER_CONFIG_PATH: ${{ secrets.RESHARPER_CONFIG_PATH }}
+      MAIN_SOLUTION_NAME: ${{ secrets.MAIN_SOLUTION_NAME }}
 
     steps:
       - uses: actions/checkout@v2
@@ -19,12 +23,10 @@ jobs:
       - name: Setup ReSharper Command Line Tools
         run: dotnet tool install --global JetBrains.ReSharper.GlobalTools --version 2021.1.2
       - name: Clean up codebase via ReSharper Command Line Tools
-        run: jb cleanupcode --profile=${{ secrets.RESHARPER_PROFILE_NAME }} --settings=${{ secrets.RESHARPER_CONFIG_PATH }} ${{ secrets.MAIN_SOLUTION_NAME }}
+        run: jb cleanupcode --profile="RESHARPER_PROFILE_NAME" --settings="RESHARPER_CONFIG_PATH" ${{ env.MAIN_SOLUTION_NAME }}
         working-directory: ${{ env.PROJECT_WORKING_DIRECTORY }}
       - name: Commit changes
         uses: EndBug/add-and-commit@v5
         with:
           message: "[Bot] Automated ReSharper CLT update"
           add: "*.cs"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

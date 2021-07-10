@@ -22,9 +22,3 @@ jobs:
 
       - name: sonarcan-dotnet
         uses: sonarsource/sonarcloud-github-action@master
-        with:
-          sonarProjectKey: ${{ secrets.SONAR_PROJECT_KEY }}
-          sonarProjectName: ${{ secrets.SONAR_PROJECT_NAME }}
-          sonarOrganization: ${{ secrets.SONAR_ORGINAZATION }}
-          dotnetBuildArguments: ${{ secrets.MAIN_SOLUTION_NAME }}
-          dotnetDisableTests: true
