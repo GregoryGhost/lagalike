@@ -23,7 +23,7 @@ jobs:
       - name: Setup ReSharper Command Line Tools
         run: dotnet tool install --global JetBrains.ReSharper.GlobalTools --version 2021.1.2
       - name: Clean up codebase via ReSharper Command Line Tools
-        run: jb cleanupcode --profile="RESHARPER_PROFILE_NAME" --settings="RESHARPER_CONFIG_PATH" ${{ env.MAIN_SOLUTION_NAME }}
+        run: jb cleanupcode --profile="${{ evn.RESHARPER_PROFILE_NAME }}" --settings="${{ env.RESHARPER_CONFIG_PATH }}" ${{ env.MAIN_SOLUTION_NAME }}
         working-directory: ${{ env.PROJECT_WORKING_DIRECTORY }}
       - name: Commit changes
         uses: EndBug/add-and-commit@v5
