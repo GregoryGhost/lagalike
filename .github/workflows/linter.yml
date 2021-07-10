@@ -7,11 +7,7 @@ jobs:
     name: Clean up C# code base via R# CLT
     runs-on: ubuntu-latest
     env:
-      PROJECT_WORKING_DIRECTORY: ${{ secrets.PROJECT_WORKING_DIRECTORY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      RESHARPER_PROFILE_NAME: ${{ secrets.RESHARPER_PROFILE_NAME }}
-      RESHARPER_CONFIG_PATH: ${{ secrets.RESHARPER_CONFIG_PATH }}
-      MAIN_SOLUTION_NAME: ${{ secrets.MAIN_SOLUTION_NAME }}
 
     steps:
       - uses: actions/checkout@v2
