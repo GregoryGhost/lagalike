@@ -7,7 +7,7 @@ jobs:
     name: Clean up C# code base via R# CLT
     runs-on: ubuntu-latest
     env:
-      working-directory : ${{ env.ProjectWorkingDirectory }}
+      working-directory : ${{ env.PROJECT_WORKING_DIRECTORY }}
 
     steps:
       - uses: actions/checkout@v2
@@ -19,8 +19,8 @@ jobs:
       - name: Setup ReSharper Command Line Tools
         run: dotnet tool install --global JetBrains.ReSharper.GlobalTools --version 2021.1.2
       - name: Clean up codebase via ReSharper Command Line Tools
-        run: jb cleanupcode --profile="Full Cleanup" ${{ env.MainSolution }}
-        working-directory: ${{ env.ProjectWorkingDirectory }}
+        run: jb cleanupcode --profile="Full Cleanup" ${{ env.MAIN_SOLUTION_NAME }}
+        working-directory: ${{ env.PROJECT_WORKING_DIRECTORY }}
       - name: Commit changes
         uses: EndBug/add-and-commit@v5
         with:

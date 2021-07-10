@@ -23,8 +23,8 @@ jobs:
       - name: sonarcan-dotnet
         uses: sonarsource/sonarcloud-github-action@master
         with:
-          sonarProjectKey: ${{ env.SonarProjectKey }}
-          sonarProjectName: ${{ env.SonarProjectName }}
-          sonarOrganization: ${{ env.SonarOrganization }}
+          sonarProjectKey: ${{ env.SONAR_PROJECT_KEY }}
+          sonarProjectName: ${{ env.SONAR_PROJECT_NAME }}
+          sonarOrganization: ${{ env.SONAR_ORGINAZATION }}
           dotnetBuildArguments: ${{ env.MainSolution }}
           dotnetDisableTests: true
