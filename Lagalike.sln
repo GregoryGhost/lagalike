@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication", "WebApplication\WebApplication.csproj", "{D9A92C9F-377C-44E3-BE59-7F63BA42E7A4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lagalike.Telegram", "Lagalike.Telegram\Lagalike.Telegram.csproj", "{D9A92C9F-377C-44E3-BE59-7F63BA42E7A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
