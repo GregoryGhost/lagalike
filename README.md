@@ -1,4 +1,6 @@
 # Lagalike
+[![CodeFactor](https://www.codefactor.io/repository/github/gregoryghost/lagalike/badge)](https://www.codefactor.io/repository/github/gregoryghost/lagalike)
+
 It's a prototyping sandbox that showcases various mechanisms and algorithms.
 They are independent and composed each other to create interesting use case variations.
 It uses the Telegram bot platform.
