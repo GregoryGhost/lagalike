@@ -1,26 +1,24 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
 namespace Telegram.Bot.Examples.WebHook.Services
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
+
     public class WebhookConfigurator : IHostedService
     {
-        private readonly ILogger<WebhookConfigurator> _logger;
+        private readonly ConfiguredTelegramBotClient _botClient;
 
         private readonly TelegramBotConfiguration _botConfig;
 
-        private readonly ConfiguredTelegramBotClient _botClient;
+        private readonly ILogger<WebhookConfigurator> _logger;
 
         private readonly string _webhookAddress;
 
         public WebhookConfigurator(ILogger<WebhookConfigurator> logger,
-                                TelegramBotConfiguration configuration,
-                                ConfiguredTelegramBotClient botClient)
+            TelegramBotConfiguration configuration,
+            ConfiguredTelegramBotClient botClient)
         {
             _logger = logger;
             _botConfig = configuration;
@@ -36,7 +34,6 @@ namespace Telegram.Bot.Examples.WebHook.Services
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            
             _logger.LogInformation("Removing webhook");
             await _botClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
         }
