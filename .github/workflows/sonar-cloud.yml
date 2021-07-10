@@ -1,0 +1,30 @@
+name: SonarCloud
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+
+      - name: sonarcan-dotnet
+        uses: sonarsource/sonarcloud-github-action@master
+        with:
+          sonarProjectKey: ${{ env.SonarProjectKey }}
+          sonarProjectName: ${{ env.SonarProjectName }}
+          sonarOrganization: ${{ env.SonarOrganization }}
+          dotnetBuildArguments: ${{ env.MainSolution }}
+          dotnetDisableTests: true
