@@ -7,6 +7,13 @@ namespace Telegram.Bot.Examples.WebHook.Services
 
     using Microsoft.Extensions.Logging;
 
+    using Telegram.Bot.Exceptions;
+    using Telegram.Bot.Types;
+    using Telegram.Bot.Types.Enums;
+    using Telegram.Bot.Types.InlineQueryResults;
+    using Telegram.Bot.Types.InputFiles;
+    using Telegram.Bot.Types.ReplyMarkups;
+
     public class HandleUpdateService
     {
         private readonly ConfiguredTelegramBotClient _botClient;
@@ -115,8 +122,8 @@ namespace Telegram.Bot.Examples.WebHook.Services
                     },
                 });
                 return await bot.SendTextMessageAsync(
-                    chatId: message.Chat.Id,
-                    text: "Choose",
+                    message.Chat.Id,
+                    "Choose",
                     replyMarkup: inlineKeyboard);
             }
 
@@ -128,20 +135,20 @@ namespace Telegram.Bot.Examples.WebHook.Services
                         new KeyboardButton[] { "1.1", "1.2" },
                         new KeyboardButton[] { "2.1", "2.2" },
                     },
-                    resizeKeyboard: true
+                    true
                 );
 
                 return await bot.SendTextMessageAsync(
-                    chatId: message.Chat.Id,
-                    text: "Choose",
+                    message.Chat.Id,
+                    "Choose",
                     replyMarkup: replyKeyboardMarkup);
             }
 
             static async Task<Message> RemoveKeyboard(ITelegramBotClient bot, Message message)
             {
                 return await bot.SendTextMessageAsync(
-                    chatId: message.Chat.Id,
-                    text: "Removing keyboard",
+                    message.Chat.Id,
+                    "Removing keyboard",
                     replyMarkup: new ReplyKeyboardRemove());
             }
 
@@ -153,9 +160,9 @@ namespace Telegram.Bot.Examples.WebHook.Services
                 using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
                 var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
                 return await bot.SendPhotoAsync(
-                    chatId: message.Chat.Id,
-                    photo: new InputOnlineFile(fileStream, fileName),
-                    caption: "Nice Picture");
+                    message.Chat.Id,
+                    new InputOnlineFile(fileStream, fileName),
+                    "Nice Picture");
             }
 
             static async Task<Message> RequestContactAndLocation(ITelegramBotClient bot, Message message)
@@ -166,8 +173,8 @@ namespace Telegram.Bot.Examples.WebHook.Services
                     KeyboardButton.WithRequestContact("Contact"),
                 });
                 return await bot.SendTextMessageAsync(
-                    chatId: message.Chat.Id,
-                    text: "Who or Where are you?",
+                    message.Chat.Id,
+                    "Who or Where are you?",
                     replyMarkup: RequestReplyKeyboard);
             }
 
@@ -180,8 +187,8 @@ namespace Telegram.Bot.Examples.WebHook.Services
                                      "/photo    - send a photo\n" +
                                      "/request  - request location or contact";
                 return await bot.SendTextMessageAsync(
-                    chatId: message.Chat.Id,
-                    text: usage,
+                    message.Chat.Id,
+                    usage,
                     replyMarkup: new ReplyKeyboardRemove());
             }
         }
@@ -202,17 +209,17 @@ namespace Telegram.Bot.Examples.WebHook.Services
             {
                 // displayed result
                 new InlineQueryResultArticle(
-                    id: "3",
-                    title: "TgBots",
-                    inputMessageContent: new InputTextMessageContent(
+                    "3",
+                    "TgBots",
+                    new InputTextMessageContent(
                         "hello"
                     )
                 )
             };
 
             await _botClient.AnswerInlineQueryAsync(
-                inlineQueryId: inlineQuery.Id,
-                results: results,
+                inlineQuery.Id,
+                results,
                 isPersonal: true,
                 cacheTime: 0);
         }
