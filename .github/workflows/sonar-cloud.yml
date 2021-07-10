@@ -26,5 +26,5 @@ jobs:
           sonarProjectKey: ${{ env.SONAR_PROJECT_KEY }}
           sonarProjectName: ${{ env.SONAR_PROJECT_NAME }}
           sonarOrganization: ${{ env.SONAR_ORGINAZATION }}
-          dotnetBuildArguments: ${{ env.MainSolution }}
+          dotnetBuildArguments: ${{ env.MAIN_SOLUTION_NAME }}
           dotnetDisableTests: true
