@@ -7,6 +7,13 @@ namespace Telegram.Bot.Examples.WebHook.Services
 
     using Microsoft.Extensions.Logging;
 
+    using Telegram.Bot.Exceptions;
+    using Telegram.Bot.Types;
+    using Telegram.Bot.Types.Enums;
+    using Telegram.Bot.Types.InlineQueryResults;
+    using Telegram.Bot.Types.InputFiles;
+    using Telegram.Bot.Types.ReplyMarkups;
+
     public class HandleUpdateService
     {
         private readonly ConfiguredTelegramBotClient _botClient;
@@ -105,14 +112,14 @@ namespace Telegram.Bot.Examples.WebHook.Services
                     new[]
                     {
                         InlineKeyboardButton.WithCallbackData("1.1", "11"),
-                        InlineKeyboardButton.WithCallbackData("1.2", "12"),
+                        InlineKeyboardButton.WithCallbackData("1.2", "12")
                     },
                     // second row
                     new[]
                     {
                         InlineKeyboardButton.WithCallbackData("2.1", "21"),
-                        InlineKeyboardButton.WithCallbackData("2.2", "22"),
-                    },
+                        InlineKeyboardButton.WithCallbackData("2.2", "22")
+                    }
                 });
                 return await bot.SendTextMessageAsync(
                     message.Chat.Id,
@@ -126,7 +133,7 @@ namespace Telegram.Bot.Examples.WebHook.Services
                     new[]
                     {
                         new KeyboardButton[] { "1.1", "1.2" },
-                        new KeyboardButton[] { "2.1", "2.2" },
+                        new KeyboardButton[] { "2.1", "2.2" }
                     },
                     true
                 );
@@ -163,7 +170,7 @@ namespace Telegram.Bot.Examples.WebHook.Services
                 ReplyKeyboardMarkup RequestReplyKeyboard = new(new[]
                 {
                     KeyboardButton.WithRequestLocation("Location"),
-                    KeyboardButton.WithRequestContact("Contact"),
+                    KeyboardButton.WithRequestContact("Contact")
                 });
                 return await bot.SendTextMessageAsync(
                     message.Chat.Id,
