@@ -1,9 +1,7 @@
 namespace Telegram.Bot.Examples.WebHook.Services
 {
-    using System.Net;
     using System.Net.Http;
 
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
 
     public class ConfiguredTelegramBotClient : TelegramBotClient

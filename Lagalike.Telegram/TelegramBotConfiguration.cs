@@ -4,10 +4,8 @@ namespace Telegram.Bot.Examples.WebHook.Services
 
     public record TelegramBotConfiguration
     {
-        [Required]
-        public string BotToken { get; init; }
-        
-        [Required]
-        public string HostAddress { get; init; }
+        [Required] public string BotToken { get; init; }
+
+        [Required] public string HostAddress { get; init; }
     }
 }

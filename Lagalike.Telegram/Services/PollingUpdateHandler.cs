@@ -4,10 +4,6 @@ namespace Telegram.Bot.Examples.WebHook.Services
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Telegram.Bot.Extensions.Polling;
-    using Telegram.Bot.Types;
-    using Telegram.Bot.Types.Enums;
-
     /// <summary>
     /// Wrapper default update handler for polling mode.
     /// </summary>
@@ -19,20 +15,20 @@ namespace Telegram.Bot.Examples.WebHook.Services
 
         public PollingUpdateHandler(HandleUpdateService updateHandler)
         {
-            this._updateHandler = updateHandler;
+            _updateHandler = updateHandler;
             AllowedUpdates = null;
         }
 
-        public Task HandleUpdate(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
-        {
-            return _updateHandler.HandleUpdateAsync(update);
-        }
+        public UpdateType[]? AllowedUpdates { get; }
 
         public Task HandleError(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             return _updateHandler.HandleErrorAsync(exception);
         }
 
-        public UpdateType[]? AllowedUpdates { get; }
+        public Task HandleUpdate(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            return _updateHandler.HandleUpdateAsync(update);
+        }
     }
 }
