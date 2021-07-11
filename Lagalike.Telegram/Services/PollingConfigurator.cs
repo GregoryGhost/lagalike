@@ -3,11 +3,10 @@ namespace Lagalike.Telegram.Services
     using System.Threading;
     using System.Threading.Tasks;
 
+    using global::Telegram.Bot;
+
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    // @formatter:off — disable formatter after this line
-    using global::Telegram.Bot;
-    // @formatter:on — enable formatter after this line
 
     public class PollingConfigurator : IHostedService
     {
