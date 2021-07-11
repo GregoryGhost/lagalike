@@ -1,4 +1,4 @@
-namespace Telegram.Bot.Examples.WebHook.Services
+namespace Lagalike.Telegram.Services
 {
     using System.Threading;
     using System.Threading.Tasks;

@@ -1,8 +1,13 @@
-namespace Telegram.Bot.Examples.WebHook.Services
+namespace Lagalike.Telegram.Services
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using global::Telegram.Bot;
+    using global::Telegram.Bot.Extensions.Polling;
+    using global::Telegram.Bot.Types;
+    using global::Telegram.Bot.Types.Enums;
 
     /// <summary>
     ///     Wrapper default update handler for polling mode.

@@ -1,9 +1,17 @@
-namespace Telegram.Bot.Examples.WebHook.Services
+namespace Lagalike.Telegram.Services
 {
     using System;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+
+    using global::Telegram.Bot;
+    using global::Telegram.Bot.Exceptions;
+    using global::Telegram.Bot.Types;
+    using global::Telegram.Bot.Types.Enums;
+    using global::Telegram.Bot.Types.InlineQueryResults;
+    using global::Telegram.Bot.Types.InputFiles;
+    using global::Telegram.Bot.Types.ReplyMarkups;
 
     using Microsoft.Extensions.Logging;
 

@@ -1,4 +1,4 @@
-namespace Telegram.Bot.Examples.WebHook.Services
+namespace Lagalike.Telegram
 {
     using System.ComponentModel.DataAnnotations;
 
