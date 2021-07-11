@@ -4,10 +4,12 @@ namespace Lagalike.Telegram.Services
     using System.Threading;
     using System.Threading.Tasks;
 
+    // @formatter:off — disable formatter after this line
     using global::Telegram.Bot;
     using global::Telegram.Bot.Extensions.Polling;
     using global::Telegram.Bot.Types;
     using global::Telegram.Bot.Types.Enums;
+    // @formatter:on — enable formatter after this line
 
     /// <summary>
     ///     Wrapper default update handler for polling mode.
