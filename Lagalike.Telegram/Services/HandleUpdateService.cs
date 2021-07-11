@@ -7,13 +7,6 @@ namespace Telegram.Bot.Examples.WebHook.Services
 
     using Microsoft.Extensions.Logging;
 
-    using Telegram.Bot.Exceptions;
-    using Telegram.Bot.Types;
-    using Telegram.Bot.Types.Enums;
-    using Telegram.Bot.Types.InlineQueryResults;
-    using Telegram.Bot.Types.InputFiles;
-    using Telegram.Bot.Types.ReplyMarkups;
-
     public class HandleUpdateService
     {
         private readonly ConfiguredTelegramBotClient _botClient;

@@ -28,7 +28,7 @@ namespace Telegram.Bot.Examples.WebHook.Services
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             var me = await _botClient.GetMeAsync(cancellationToken);
-            
+
             _botClient.StartReceiving(_updateHandler, _telegramClientCancellationToken.Token);
 
             _logger.LogInformation($"Start listening for @{me.Username}");
