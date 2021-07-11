@@ -10,8 +10,6 @@ namespace WebApplication
 
     public class Startup
     {
-        private const string TELEGRAM_BOT_CONFIGURATION_SECTION = "TelegramBotConfiguration";
-
         private readonly IConfigurationSection _botConfiguration;
 
         private readonly IHostEnvironment _environment;
@@ -20,7 +18,7 @@ namespace WebApplication
         {
             Configuration = configuration;
             _environment = environment;
-            _botConfiguration = Configuration.GetSection(TELEGRAM_BOT_CONFIGURATION_SECTION);
+            _botConfiguration = Configuration.GetSection(TelegramBotConfiguration.CONFIGURATION_SECTION_NAME);
         }
 
         public IConfiguration Configuration { get; }
@@ -37,7 +35,7 @@ namespace WebApplication
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.

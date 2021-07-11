@@ -1,5 +1,6 @@
 namespace Telegram.Bot.Examples.WebHook.Services
 {
+    using System;
     using System.Net.Http;
 
     using Microsoft.Extensions.Options;

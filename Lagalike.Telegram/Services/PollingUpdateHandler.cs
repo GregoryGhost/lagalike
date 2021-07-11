@@ -13,8 +13,6 @@ namespace Telegram.Bot.Examples.WebHook.Services
     /// </summary>
     public class PollingUpdateHandler : IUpdateHandler
     {
-        private readonly ConfiguredTelegramBotClient _botClient;
-
         private readonly HandleUpdateService _updateHandler;
 
         public PollingUpdateHandler(HandleUpdateService updateHandler)

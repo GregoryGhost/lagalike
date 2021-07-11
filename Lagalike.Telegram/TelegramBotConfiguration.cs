@@ -2,10 +2,26 @@ namespace Telegram.Bot.Examples.WebHook.Services
 {
     using System.ComponentModel.DataAnnotations;
 
+    /// <summary>
+    /// The Telegram bot configuration.
+    /// </summary>
     public record TelegramBotConfiguration
     {
-        [Required] public string BotToken { get; init; }
+        /// <summary>
+        /// A section name in appsettings.
+        /// </summary>
+        public const string CONFIGURATION_SECTION_NAME = "TelegramBotConfiguration";
 
-        [Required] public string HostAddress { get; init; }
+        /// <summary>
+        /// Telegram bot token.
+        /// </summary>
+        [Required]
+        public string BotToken { get; init; } = null!;
+
+        /// <summary>
+        /// Host address for a web hook mode.
+        /// </summary>
+        [Required]
+        public string HostAddress { get; init; } = null!;
     }
 }

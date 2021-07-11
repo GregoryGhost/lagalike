@@ -10,8 +10,6 @@ namespace Telegram.Bot.Examples.WebHook.Services
     {
         private readonly ConfiguredTelegramBotClient _botClient;
 
-        private readonly HandleUpdateService _handleUpdateService;
-
         private readonly ILogger<PollingConfigurator> _logger;
 
         private readonly CancellationTokenSource _telegramClientCancellationToken;
@@ -30,16 +28,16 @@ namespace Telegram.Bot.Examples.WebHook.Services
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             var me = await _botClient.GetMeAsync(cancellationToken);
-
-            // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.;
+            
             _botClient.StartReceiving(_updateHandler, _telegramClientCancellationToken.Token);
 
             _logger.LogInformation($"Start listening for @{me.Username}");
         }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
+        public Task StopAsync(CancellationToken cancellationToken)
         {
             _telegramClientCancellationToken.Cancel();
+            return Task.CompletedTask;
         }
     }
 }
