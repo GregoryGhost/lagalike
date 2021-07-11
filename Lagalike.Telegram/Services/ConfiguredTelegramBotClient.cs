@@ -1,6 +1,9 @@
 namespace Lagalike.Telegram.Services
 {
     using System.Net.Http;
+    
+    
+    using global::Telegram.Bot;
 
     using Microsoft.Extensions.Options;
 
