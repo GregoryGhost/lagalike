@@ -10,8 +10,6 @@ namespace Lagalike.Telegram.Services
     {
         private readonly ConfiguredTelegramBotClient _botClient;
 
-        private readonly TelegramBotConfiguration _botConfig;
-
         private readonly ILogger<WebhookConfigurator> _logger;
 
         private readonly string _webhookAddress;
@@ -21,9 +19,8 @@ namespace Lagalike.Telegram.Services
             ConfiguredTelegramBotClient botClient)
         {
             _logger = logger;
-            _botConfig = configuration;
             _botClient = botClient;
-            _webhookAddress = @$"{_botConfig.HostAddress}/bot/{_botConfig.BotToken}";
+            _webhookAddress = @$"{configuration.HostAddress}/bot/{configuration.BotToken}";
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
