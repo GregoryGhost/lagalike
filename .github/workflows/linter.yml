@@ -21,6 +21,8 @@ jobs:
           dotnet-version: '5.0.301'
       - name: Setup ReSharper Command Line Tools
         run: dotnet tool install -g JetBrains.ReSharper.GlobalTools --version 2021.2.0-eap06
+      - name: Restore the project dependencies
+        run: dotnet tool restore 
       - name: Clean up codebase via ReSharper Command Line Tools
         run: jb cleanupcode --profile="${{ env.RESHARPER_PROFILE_NAME }}" ${{ env.MAIN_SOLUTION_NAME }}
         working-directory: ${{ env.PROJECT_WORKING_DIRECTORY }}
