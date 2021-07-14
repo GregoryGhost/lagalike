@@ -2,18 +2,21 @@ namespace Lagalike.GraphML.Parser
 {
     using System.ComponentModel;
 
+    using EnumWithValues;
+
+    [EnumWithValues("ParseErrors", convertEnumValue: true, throwIfCastFails: true)]
     public enum ParseError
     {
-        [Description("File not found for provided filename")]
+        [EnumValue("File not found for provided filename")]
         NotFoundFile,
 
-        [Description("Wrong format xml document")]
+        [EnumValue("Wrong format xml document")]
         WrongFormatXmlDocument,
 
-        [Description("Wrong gotten GraphML format")]
+        [EnumValue("Wrong gotten GraphML format")]
         ParseGraphMlFormat,
 
-        [Description("Not found node by id")]
+        [EnumValue("Not found node by id")]
         PrepareGraph,
     }
 }
