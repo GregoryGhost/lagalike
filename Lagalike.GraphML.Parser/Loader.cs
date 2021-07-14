@@ -4,11 +4,11 @@ namespace Lagalike.GraphML.Parser
 
     public class Loader
     {
-        private readonly Reader _fileReader;
+        private readonly FileReader _fileReader;
 
         private readonly Parser _parser;
 
-        public Loader(Reader fileReader, Parser parser)
+        public Loader(FileReader fileReader, Parser parser)
         {
             _fileReader = fileReader;
             _parser = parser;
