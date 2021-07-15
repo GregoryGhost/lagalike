@@ -1,6 +1,6 @@
 namespace Lagalike.GraphML.Parser
 {
-    public class Graph
-    {
-    }
+    using QuikGraph;
+
+    public class Graph : AdjacencyGraph<Vertex, CustomEdge> {}
 }
