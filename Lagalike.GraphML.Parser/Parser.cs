@@ -48,9 +48,21 @@
             return foundNode?.Value;
         }
 
-        private static string FindNodeTextByAttributeKey(XElement node, string attributeKey)
+        private static string? FindNodeTextByAttributeKey(XContainer node, string attributeKey)
         {
-            throw new NotImplementedException();
+            var data = node.Elements().FirstOrDefault(
+                x =>
+                {
+                    var wasFoundKey = FindNodeAttributeByKey(x, ATTR_TAG_KEY) != null;
+                    var wasFoundTag = x.Name.LocalName == TAG_DATA;
+                    
+                    return wasFoundTag && wasFoundKey;
+                });
+            var nodeList = data?.Elements().FirstOrDefault(x => x.Name.LocalName == TAG_LIST);
+            var nodeLabel = nodeList?.Elements().FirstOrDefault(x => x.Name.LocalName == TAG_LABEL);
+            var nodeLabelText = nodeLabel?.Elements().FirstOrDefault(x => x.Name.LocalName == TAG_LABEL_TEXT);
+
+            return nodeLabelText?.Value;
         }
 
         private static Result<List<IGraphMlElement>, ParseError> ParseGraphMlFormat(XContainer xDoc)
