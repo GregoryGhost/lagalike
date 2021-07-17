@@ -1,5 +1,6 @@
 namespace Lagalike.GraphML.Parser
 {
+    using System;
     using System.IO;
     using System.Xml.Linq;
 
@@ -7,8 +8,16 @@ namespace Lagalike.GraphML.Parser
 
     using FileName = System.String;
 
+    /// <summary>
+    ///     The file reader of files in the GraphML format.
+    /// </summary>
     public class FileReader
     {
+        /// <summary>
+        ///     Read a file of the GraphML format.
+        /// </summary>
+        /// <param name="fileName">A file name.</param>
+        /// <returns>Returns parsed a file of the GraphML format as a XML document.</returns>
         public Result<XDocument, ParseError> ReadGraphMlFile(string fileName)
         {
             return CheckExistsGraphmlFile(fileName).Bind(ReadFile);
@@ -21,9 +30,16 @@ namespace Lagalike.GraphML.Parser
 
         private static Result<XDocument, ParseError> ReadFile(string fileName)
         {
-            var xDoc = XDocument.Load(fileName);
+            try
+            {
+                var xDoc = XDocument.Load(fileName);
 
-            return xDoc;
+                return xDoc;
+            }
+            catch (Exception)
+            {
+                return Result.Failure<XDocument, ParseError>(ParseError.WrongFormatXmlDocument);
+            }
         }
     }
 }

@@ -9,6 +9,9 @@
 
     using MoreLinq.Extensions;
 
+    /// <summary>
+    ///     The parser converts a XML representation of a file in the GraphML format to a adjacency graph.
+    /// </summary>
     public class Parser
     {
         private const string ATTR_TAG_KEY = "key";
@@ -35,9 +38,59 @@
 
         private const string VERTEX_TARGET_ATTR_KEY = "target";
 
-        public Result<Graph, ParseError> Parse(XContainer xDoc)
+        /// <summary>
+        ///     Parse a XML document to a adjacency graph.
+        /// </summary>
+        /// <param name="xmlDocument">A XML document with data in the GraphML format.</param>
+        /// <returns>Returns a adjacency graph or errors of parsing proccess..</returns>
+        public Result<Graph, ParseError> Parse(XContainer xmlDocument)
         {
-            return ParseGraphMlFormat(xDoc).Bind(PrepareGraph);
+            return ParseGraphMlFormat(xmlDocument).Bind(PrepareGraph);
+        }
+
+        private static Graph CollectGraphElements(GraphMlEdge graphMlEdge,
+            IReadOnlyDictionary<string, CustomVertex> vertexIndexes, Graph graph)
+        {
+            var (sourceVertexId, targetVertexId, edgeText) = graphMlEdge;
+            var isFoundSourceVertex = vertexIndexes.TryGetValue(sourceVertexId, out var sourceVertex);
+            var isFoundTargetVertex = vertexIndexes.TryGetValue(targetVertexId, out var targetVertex);
+            if (!isFoundSourceVertex || !isFoundTargetVertex || sourceVertex == null || targetVertex == null)
+                return graph;
+
+            var edge = new CustomEdge(sourceVertex, targetVertex, edgeText);
+            graph.AddVerticesAndEdge(edge);
+
+            return graph;
+        }
+
+        private static List<IGraphMlElement> CollectGraphMlElements(List<IGraphMlElement> elements, XElement node)
+        {
+            var graphMlElementType = node.Name.LocalName.ToLowerInvariant();
+            switch (graphMlElementType)
+            {
+                case NODE:
+                {
+                    var nodeId = FindNodeAttributeByKey(node, NODE_ID_KEY) ?? "empty";
+                    var nodeText = FindNodeTextByAttributeKey(node, NODE_TEXT_ATTR_KEY) ?? "";
+                    var vertex = new GraphMlVertex(nodeId, nodeText);
+                    elements.Add(vertex);
+
+                    return elements;
+                }
+                case EDGE:
+                {
+                    var sourceNodeId = FindNodeAttributeByKey(node, VERTEX_SOURCE_ATTR_KEY) ?? "empty";
+                    var targetNodeId = FindNodeAttributeByKey(node, VERTEX_TARGET_ATTR_KEY) ?? "empty";
+                    var edgeText = FindNodeTextByAttributeKey(node, EDGE_TEXT_ATTR_KEY) ?? "";
+                    var edge = new GraphMlEdge(sourceNodeId, targetNodeId, edgeText);
+                    elements.Add(edge);
+
+                    return elements;
+                }
+                default:
+                    Debug.WriteLine("Can't match xElement type. It was ignored.");
+                    return elements;
+            }
         }
 
         private static string? FindNodeAttributeByKey(XElement node, string attributeKey)
@@ -68,30 +121,7 @@
         {
             var parsedGraphMlElements = xDoc.Descendants().Aggregate(
                 new List<IGraphMlElement>(),
-                (acc, node) =>
-                {
-                    switch (node.Name.LocalName.ToLowerInvariant())
-                    {
-                        case NODE:
-                            var nodeId = FindNodeAttributeByKey(node, NODE_ID_KEY) ?? "empty";
-                            var nodeText = FindNodeTextByAttributeKey(node, NODE_TEXT_ATTR_KEY) ?? "";
-                            var vertex = new GraphMlVertex(nodeId, nodeText);
-                            acc.Add(vertex);
-
-                            return acc;
-                        case EDGE:
-                            var sourceNodeId = FindNodeAttributeByKey(node, VERTEX_SOURCE_ATTR_KEY) ?? "empty";
-                            var targetNodeId = FindNodeAttributeByKey(node, VERTEX_TARGET_ATTR_KEY) ?? "empty";
-                            var edgeText = FindNodeTextByAttributeKey(node, EDGE_TEXT_ATTR_KEY) ?? "";
-                            var edge = new GraphMlEdge(sourceNodeId, targetNodeId, edgeText);
-                            acc.Add(edge);
-
-                            return acc;
-                        default:
-                            Debug.WriteLine("Can't match xElement type. It was ignored.");
-                            return acc;
-                    }
-                });
+                CollectGraphMlElements);
 
             return parsedGraphMlElements.Any()
                 ? parsedGraphMlElements
@@ -104,19 +134,7 @@
             var vertexIndexes = vertixes.Cast<Vertex>().ToDictionary(x => x.Id, vertex => new CustomVertex(vertex.Text));
             var preparedGraph = edges.Cast<GraphMlEdge>().Aggregate(
                 new Graph(),
-                (graph, graphMlEdge) =>
-                {
-                    var (sourceVertexId, targetVertexId, edgeText) = graphMlEdge;
-                    var isFoundSourceVertex = vertexIndexes.TryGetValue(sourceVertexId, out var sourceVertex);
-                    var isFoundTargetVertex = vertexIndexes.TryGetValue(targetVertexId, out var targetVertex);
-                    if (!isFoundSourceVertex || !isFoundTargetVertex || sourceVertex == null || targetVertex == null)
-                        return graph;
-
-                    var edge = new CustomEdge(sourceVertex, targetVertex, edgeText);
-                    graph.AddVerticesAndEdge(edge);
-
-                    return graph;
-                });
+                (graph, graphMlEdge) => CollectGraphElements(graphMlEdge, vertexIndexes, graph));
 
             return preparedGraph;
         }
