@@ -1,9 +1,11 @@
 namespace Lagalike.GraphML.Parser.Tests
 {
     using System.IO;
+    using System.Linq;
 
     using CSharpFunctionalExtensions;
 
+    using FluentAssertions;
     using FluentAssertions.CSharpFunctionalExtensions;
 
     using NUnit.Framework;
@@ -14,18 +16,7 @@ namespace Lagalike.GraphML.Parser.Tests
 
         private const string TEST_GRAPH_ML_FILE_NAME = "scenes-choices.graphml";
 
-        [Test]
-        public void ParseGraphMlFileShouldBeCorrect()
-        {
-            const string TestGraphMlFileName = "scenes-choices.graphml";
-            var actualProgramPath = Directory.GetCurrentDirectory();
-            var filePath = Path.Combine(actualProgramPath, TestGraphMlFileName);
-
-            var loader = GetLoader();
-            var parsedGraph = loader.ParseFile(filePath);
-
-            parsedGraph.Should().BeSuccess();
-        }
+        private readonly TestData _testData = new();
 
         [Test]
         public void ParseGraphMlFileShouldBeSuccess()
@@ -33,6 +24,12 @@ namespace Lagalike.GraphML.Parser.Tests
             var parsedGraph = ParseGraphMlFile();
 
             parsedGraph.Should().BeSuccess();
+
+            var expectedGraph = _testData.GetExpectedGraph();
+            
+            parsedGraph.Value.Vertices.Should().BeEquivalentTo(expectedGraph.Vertices);
+            
+            parsedGraph.Value.Edges.Should().BeEquivalentTo(expectedGraph.Edges);
         }
 
         [Test]

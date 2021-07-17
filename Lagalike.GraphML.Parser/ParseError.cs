@@ -1,10 +1,8 @@
 namespace Lagalike.GraphML.Parser
 {
-    using System.ComponentModel;
-
     using EnumWithValues;
 
-    [EnumWithValues("ParseErrors", convertEnumValue: true, throwIfCastFails: true)]
+    [EnumWithValues("ParseErrors", true, true)]
     public enum ParseError
     {
         [EnumValue("File not found for provided filename")]

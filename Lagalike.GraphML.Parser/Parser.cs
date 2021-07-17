@@ -1,6 +1,5 @@
 ﻿namespace Lagalike.GraphML.Parser
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
@@ -53,9 +52,9 @@
             var data = node.Elements().FirstOrDefault(
                 x =>
                 {
-                    var wasFoundKey = FindNodeAttributeByKey(x, ATTR_TAG_KEY) != null;
+                    var wasFoundKey = FindNodeAttributeByKey(x, ATTR_TAG_KEY) == attributeKey;
                     var wasFoundTag = x.Name.LocalName == TAG_DATA;
-                    
+
                     return wasFoundTag && wasFoundKey;
                 });
             var nodeList = data?.Elements().FirstOrDefault(x => x.Name.LocalName == TAG_LIST);
@@ -71,23 +70,20 @@
                 new List<IGraphMlElement>(),
                 (acc, node) =>
                 {
-                    switch (node.Name.LocalName)
+                    switch (node.Name.LocalName.ToLowerInvariant())
                     {
                         case NODE:
-                            var vertex = new GraphMlVertex
-                            {
-                                Id = FindNodeAttributeByKey(node, NODE_ID_KEY) ?? "empty",
-                                Text = FindNodeTextByAttributeKey(node, NODE_TEXT_ATTR_KEY) ?? ""
-                            };
+                            var nodeId = FindNodeAttributeByKey(node, NODE_ID_KEY) ?? "empty";
+                            var nodeText = FindNodeTextByAttributeKey(node, NODE_TEXT_ATTR_KEY) ?? "";
+                            var vertex = new GraphMlVertex(nodeId, nodeText);
                             acc.Add(vertex);
+
                             return acc;
                         case EDGE:
-                            var edge = new GraphMlEdge
-                            {
-                                SourceId = FindNodeAttributeByKey(node, VERTEX_SOURCE_ATTR_KEY) ?? "empty",
-                                TargetId = FindNodeAttributeByKey(node, VERTEX_TARGET_ATTR_KEY) ?? "empty",
-                                Text = FindNodeTextByAttributeKey(node, EDGE_TEXT_ATTR_KEY) ?? ""
-                            };
+                            var sourceNodeId = FindNodeAttributeByKey(node, VERTEX_SOURCE_ATTR_KEY) ?? "empty";
+                            var targetNodeId = FindNodeAttributeByKey(node, VERTEX_TARGET_ATTR_KEY) ?? "empty";
+                            var edgeText = FindNodeTextByAttributeKey(node, EDGE_TEXT_ATTR_KEY) ?? "";
+                            var edge = new GraphMlEdge(sourceNodeId, targetNodeId, edgeText);
                             acc.Add(edge);
 
                             return acc;
@@ -105,45 +101,24 @@
         private static Result<Graph, ParseError> PrepareGraph(List<IGraphMlElement> parsedGraphMlElements)
         {
             var (edges, vertixes) = parsedGraphMlElements.Partition(x => x is GraphMlEdge);
-            var vertexIndexes = vertixes.Cast<Vertex>().ToDictionary(x => x.Id);
-            var graph = edges.Cast<GraphMlEdge>().Aggregate(
+            var vertexIndexes = vertixes.Cast<Vertex>().ToDictionary(x => x.Id, vertex => new CustomVertex(vertex.Text));
+            var preparedGraph = edges.Cast<GraphMlEdge>().Aggregate(
                 new Graph(),
-                (acc, x) =>
+                (graph, graphMlEdge) =>
                 {
-                    var isFoundSourceVertex = vertexIndexes.TryGetValue(x.SourceId, out var sourceVertex);
-                    var isFoundTargetVertex = vertexIndexes.TryGetValue(x.SourceId, out var targetVertex);
+                    var (sourceVertexId, targetVertexId, edgeText) = graphMlEdge;
+                    var isFoundSourceVertex = vertexIndexes.TryGetValue(sourceVertexId, out var sourceVertex);
+                    var isFoundTargetVertex = vertexIndexes.TryGetValue(targetVertexId, out var targetVertex);
                     if (!isFoundSourceVertex || !isFoundTargetVertex || sourceVertex == null || targetVertex == null)
-                        return acc;
+                        return graph;
 
-                    var edge = new CustomEdge
-                    {
-                        Source = sourceVertex,
-                        Target = targetVertex,
-                        Text = x.Text
-                    };
-                    acc.AddVerticesAndEdge(edge);
+                    var edge = new CustomEdge(sourceVertex, targetVertex, edgeText);
+                    graph.AddVerticesAndEdge(edge);
 
-                    return acc;
+                    return graph;
                 });
 
-            return graph;
+            return preparedGraph;
         }
-    }
-
-    internal record GraphMlEdge : IGraphMlElement
-    {
-        public string SourceId { get; init; } = null!;
-
-        public string TargetId { get; init; } = null!;
-
-        public string Text { get; init; } = null!;
-    }
-
-    internal record GraphMlVertex : Vertex, IGraphMlElement
-    {
-    }
-
-    internal interface IGraphMlElement
-    {
     }
 }
