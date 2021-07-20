@@ -3,7 +3,7 @@ namespace Lagalike.GraphML.Parser.Tests
     using System.Collections.Generic;
 
     /// <summary>
-    /// This test data need to unit tests.
+    ///     This test data need to unit tests.
     /// </summary>
     public class TestData
     {
@@ -35,7 +35,8 @@ namespace Lagalike.GraphML.Parser.Tests
             }
         };
 
-        private static readonly CustomEdge[] Edges = {
+        private static readonly CustomEdge[] Edges =
+        {
             new(Scenes[Scene.Scene1Root], Scenes[Scene.Scene2], "вар1"),
             new(Scenes[Scene.Scene2], Scenes[Scene.Scene5], "вар2.5"),
             new(Scenes[Scene.Scene2], Scenes[Scene.Scene6], "вар2.6"),
@@ -47,7 +48,7 @@ namespace Lagalike.GraphML.Parser.Tests
         };
 
         /// <summary>
-        /// Get a extected graph for the <see cref="scene-choises.graphml"/>. 
+        ///     Get a extected graph for the <see cref="scene-choises.graphml" />.
         /// </summary>
         /// <returns>Returns a graph representation.</returns>
         public Graph GetExpectedGraph()
@@ -58,7 +59,7 @@ namespace Lagalike.GraphML.Parser.Tests
             return graph;
         }
     }
-    
+
     internal enum Scene
     {
         Scene1Root = 0,

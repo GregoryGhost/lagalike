@@ -26,9 +26,9 @@ namespace Lagalike.GraphML.Parser.Tests
             parsedGraph.Should().BeSuccess();
 
             var expectedGraph = _testData.GetExpectedGraph();
-            
+
             parsedGraph.Value.Vertices.Should().BeEquivalentTo(expectedGraph.Vertices);
-            
+
             parsedGraph.Value.Edges.Should().BeEquivalentTo(expectedGraph.Edges);
         }
 
