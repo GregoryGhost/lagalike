@@ -36,15 +36,19 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-      - name: Build and analyze
+      - name: Install dotCover
+        shell: powershell
+        run: |
+          dotnet tool install JetBrains.dotCover.GlobalTool -g
+      - name: Build, test and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"GregoryGhost_lagalike" /o:"gregoryghost" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.nunit.reportsPaths=bin/coverage.xml
-          
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"GregoryGhost_lagalike" /o:"gregoryghost" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html
+
           dotnet build /p:ContinuousIntegrationBuild=false
-          dotnet test Lagalike.sln -c Release -l:"trx;LogFileName=tests.trx" -r:"bin/" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="bin/coverage.xml"
-          
+          dotnet dotcover test --dcReportType=HTML --no-build
+
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
