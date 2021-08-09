@@ -55,6 +55,8 @@ namespace Lagalike.Telegram
             // Read more about adding Newtonsoft.Json to ASP.NET Core pipeline:
             //   https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/formatting?view=aspnetcore-5.0#add-newtonsoftjson-based-json-format-support
             services.AddControllers().AddNewtonsoftJson();
+            
+            services.Configure<TelegramBotConfiguration>(_botConfiguration);
         }
 
         private void ConfigureTelegramMode(IServiceCollection services)
@@ -68,7 +70,6 @@ namespace Lagalike.Telegram
             }
             else
             {
-                services.Configure<TelegramBotConfiguration>(_botConfiguration);
                 services.AddHostedService<WebhookConfigurator>();
             }
         }
