@@ -26,5 +26,6 @@ jobs:
       # Push the Docker image to Heroku Container Registry
       - name: Publish
         run: |
-          heroku container:push web -a $APP_NAME --arg TelegramBotConfiguration.BotToken=${{ secrets.TELEGRAM_BOT_TOKEN }} TelegramBotConfiguration.HostAddress=${{ secrets.HEROKU_HOST_ADDRESS }}
+          echo $APP_SETTINGS >> ./Lagalike.Telegram/appsettings.json
+          heroku container:push web -a $APP_NAME
           heroku container:release web -a $APP_NAME
