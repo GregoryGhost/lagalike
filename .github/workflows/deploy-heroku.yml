@@ -13,8 +13,6 @@ jobs:
   build:
     name: Deploy to Heroku
     runs-on: ubuntu-18.04
-    needs: 
-      - build
     steps:
 
       # Clone the repository
