@@ -5,6 +5,7 @@ namespace Lagalike.Telegram.Services
 
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
 
     public class WebhookConfigurator : IHostedService
     {
@@ -15,12 +16,12 @@ namespace Lagalike.Telegram.Services
         private readonly string _webhookAddress;
 
         public WebhookConfigurator(ILogger<WebhookConfigurator> logger,
-            TelegramBotConfiguration configuration,
+            IOptions<TelegramBotConfiguration> configuration,
             ConfiguredTelegramBotClient botClient)
         {
             _logger = logger;
             _botClient = botClient;
-            _webhookAddress = @$"{configuration.HostAddress}/bot/{configuration.BotToken}";
+            _webhookAddress = @$"{configuration.Value.HostAddress}/bot/{configuration.Value.BotToken}";
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
