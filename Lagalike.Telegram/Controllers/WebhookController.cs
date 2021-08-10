@@ -10,6 +10,14 @@ namespace Lagalike.Telegram.Controllers
 
     public class WebhookController : ControllerBase
     {
+        [HttpGet("/")]
+        [HttpGet("/health-check")]
+        public async Task<IActionResult> HealthCheck()
+        {
+            return Ok();
+        }
+
+        [HttpPost("/bot")]
         public async Task<IActionResult> Post([FromServices] HandleUpdateService handleUpdateService,
             [FromBody] Update update)
         {

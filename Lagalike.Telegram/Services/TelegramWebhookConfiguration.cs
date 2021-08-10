@@ -6,7 +6,7 @@ namespace Lagalike.Telegram.Services
     {
         public TelegramWebhookConfiguration(IOptions<TelegramBotConfiguration> configuration)
         {
-            WebhookAddress = configuration.Value.HostAddress;
+            WebhookAddress = $"{configuration.Value.HostAddress}/bot";
         }
 
         public string WebhookAddress { get; }
