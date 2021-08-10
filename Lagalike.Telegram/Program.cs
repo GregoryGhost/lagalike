@@ -12,7 +12,7 @@ namespace Lagalike.Telegram
             var port = Environment.GetEnvironmentVariable("PORT");
 
             return Host.CreateDefaultBuilder(args).
-                        ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>().UseUrls("http://*:" + port));
+                        ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>().UseUrls("https://*:" + port));
         }
 
         public static void Main(string[] args)
