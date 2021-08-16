@@ -31,7 +31,7 @@ namespace Lagalike.Telegram.Services
         {
             await RemoveWebhookAsync(cancellationToken);
 
-            StartReceiveTelegramMessangesAsync(cancellationToken);
+            await StartReceiveTelegramMessangesAsync(cancellationToken);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

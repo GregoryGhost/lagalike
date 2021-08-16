@@ -29,9 +29,10 @@ namespace Lagalike.Telegram.Services
             await _botClient.SetWebhookAsync(_webhookAddress, cancellationToken: cancellationToken);
         }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
+        public Task StopAsync(CancellationToken cancellationToken)
         {
             //NOTE: don't remove a webhook because the Heroku puts to sleep the bot when the bot has no requests at 1 hour.
+            return Task.CompletedTask;
         }
     }
 }

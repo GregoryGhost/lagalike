@@ -12,9 +12,9 @@ namespace Lagalike.Telegram.Controllers
     {
         [HttpGet("/")]
         [HttpGet("/health-check")]
-        public async Task<IActionResult> HealthCheck()
+        public Task<IActionResult> HealthCheck()
         {
-            return Ok();
+            return Task.FromResult<IActionResult>(Ok());
         }
 
         [HttpPost("/bot")]

@@ -1,5 +1,7 @@
 namespace Lagalike.Telegram
 {
+    using System;
+
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
 
