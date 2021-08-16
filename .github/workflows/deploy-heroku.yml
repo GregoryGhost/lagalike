@@ -25,8 +25,8 @@ jobs:
           rollbackonhealthcheckfailed: true
           docker_heroku_process_type: "worker"
           docker_build_args: |
-            TelegramBotConfiguration.BotToken
-            TelegramBotConfiguration.HostAddress
+            TelegramBotConfiguration__BotToken
+            TelegramBotConfiguration__HostAddress
           env:
-            TelegramBotConfiguration.BotToken: ${{ secrets.TELEGRAM_API_TOKEN }}
-            TelegramBotConfiguration.HostAddress: ${{ secrets.HEROKU_HOST_ADDRESS }}
+            TelegramBotConfiguration__BotToken: ${{ secrets.TELEGRAM_API_TOKEN }}
+            TelegramBotConfiguration__HostAddress: ${{ secrets.HEROKU_HOST_ADDRESS }}
