@@ -9,9 +9,10 @@ namespace Lagalike.Telegram.Services
     using global::Telegram.Bot.Exceptions;
     using global::Telegram.Bot.Types;
     using global::Telegram.Bot.Types.Enums;
-    using global::Telegram.Bot.Types.InlineQueryResults;
     using global::Telegram.Bot.Types.InputFiles;
     using global::Telegram.Bot.Types.ReplyMarkups;
+
+    using Lagalike.Telegram.Modes;
 
     using Microsoft.Extensions.Logging;
 
@@ -19,48 +20,37 @@ namespace Lagalike.Telegram.Services
     {
         private readonly ConfiguredTelegramBotClient _botClient;
 
+        private readonly DialogSystem _dialogSystem;
+
         private readonly ILogger<HandleUpdateService> _logger;
 
-        public HandleUpdateService(ConfiguredTelegramBotClient botClient, ILogger<HandleUpdateService> logger)
+        public HandleUpdateService(ConfiguredTelegramBotClient botClient, ILogger<HandleUpdateService> logger,
+            DialogSystem dialogSystem)
         {
             _botClient = botClient;
             _logger = logger;
+            _dialogSystem = dialogSystem;
         }
 
         public Task HandleErrorAsync(Exception exception)
         {
-            var ErrorMessage = exception switch
+            var errorMessage = exception switch
             {
                 ApiRequestException apiRequestException =>
                     $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
                 _ => exception.ToString()
             };
 
-            _logger.LogInformation(ErrorMessage);
+            _logger.LogInformation(errorMessage);
+
             return Task.CompletedTask;
         }
 
         public async Task HandleUpdateAsync(Update update)
         {
-            var handler = update.Type switch
-            {
-                // UpdateType.Unknown:
-                // UpdateType.ChannelPost:
-                // UpdateType.EditedChannelPost:
-                // UpdateType.ShippingQuery:
-                // UpdateType.PreCheckoutQuery:
-                // UpdateType.Poll:
-                UpdateType.Message => BotOnMessageReceived(update.Message),
-                UpdateType.EditedMessage => BotOnMessageReceived(update.Message),
-                UpdateType.CallbackQuery => BotOnCallbackQueryReceived(update.CallbackQuery),
-                UpdateType.InlineQuery => BotOnInlineQueryReceived(update.InlineQuery),
-                UpdateType.ChosenInlineResult => BotOnChosenInlineResultReceived(update.ChosenInlineResult),
-                _ => UnknownUpdateHandlerAsync(update)
-            };
-
             try
             {
-                await handler;
+                await GetHandlerAsync(update);
             }
             catch (Exception exception)
             {
@@ -68,8 +58,18 @@ namespace Lagalike.Telegram.Services
             }
         }
 
-        // Process Inline Keyboard callback data
-        private async Task BotOnCallbackQueryReceived(CallbackQuery callbackQuery)
+        private Task GetHandlerAsync(Update update)
+        {
+            return update.Type switch
+            {
+                UpdateType.Message => ProccessReceivedMessage(update.Message),
+                UpdateType.EditedMessage => ProccessReceivedMessage(update.Message),
+                UpdateType.CallbackQuery => ProccessInlineKeyboardCallbackData(update.CallbackQuery),
+                _ => UnknownUpdateHandlerAsync(update)
+            };
+        }
+
+        private async Task ProccessInlineKeyboardCallbackData(CallbackQuery callbackQuery)
         {
             await _botClient.AnswerCallbackQueryAsync(
                 callbackQuery.Id,
@@ -80,7 +80,7 @@ namespace Lagalike.Telegram.Services
                 $"Received {callbackQuery.Data}");
         }
 
-        private async Task BotOnMessageReceived(Message message)
+        private async Task ProccessReceivedMessage(Message message)
         {
             _logger.LogInformation($"Receive message type: {message.Type}");
             if (message.Type != MessageType.Text)
@@ -88,110 +88,26 @@ namespace Lagalike.Telegram.Services
 
             var action = message.Text.Split(' ').First() switch
             {
-                "/inline" => SendInlineKeyboard(_botClient, message),
-                "/keyboard" => SendReplyKeyboard(_botClient, message),
-                "/remove" => RemoveKeyboard(_botClient, message),
+                "/dialog" => _dialogSystem.SendMenuAsync(_botClient, message),
                 "/photo" => SendFile(_botClient, message),
-                "/request" => RequestContactAndLocation(_botClient, message),
                 _ => Usage(_botClient, message)
             };
             var sentMessage = await action;
             _logger.LogInformation($"The message was sent with id: {sentMessage.MessageId}");
+        }
 
-            // Send inline keyboard
-            // You can process responses in BotOnCallbackQueryReceived handler
-            static async Task<Message> SendInlineKeyboard(ITelegramBotClient bot, Message message)
-            {
-                await bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+        private static async Task<Message> SendFile(ITelegramBotClient bot, Message message)
+        {
+            await bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
-                // Simulate longer running task
-                await Task.Delay(500);
+            const string FilePath = @"Files/tux.png";
+            await using FileStream fileStream = new(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var fileName = FilePath.Split(Path.DirectorySeparatorChar).Last();
 
-                InlineKeyboardMarkup inlineKeyboard = new(new[]
-                {
-                    // first row
-                    new[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("1.1", "11"),
-                        InlineKeyboardButton.WithCallbackData("1.2", "12")
-                    },
-                    // second row
-                    new[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("2.1", "21"),
-                        InlineKeyboardButton.WithCallbackData("2.2", "22")
-                    }
-                });
-                return await bot.SendTextMessageAsync(
-                    message.Chat.Id,
-                    "Choose",
-                    replyMarkup: inlineKeyboard);
-            }
-
-            static async Task<Message> SendReplyKeyboard(ITelegramBotClient bot, Message message)
-            {
-                ReplyKeyboardMarkup replyKeyboardMarkup = new(
-                    new[]
-                    {
-                        new KeyboardButton[] { "1.1", "1.2" },
-                        new KeyboardButton[] { "2.1", "2.2" }
-                    },
-                    true
-                );
-
-                return await bot.SendTextMessageAsync(
-                    message.Chat.Id,
-                    "Choose",
-                    replyMarkup: replyKeyboardMarkup);
-            }
-
-            static async Task<Message> RemoveKeyboard(ITelegramBotClient bot, Message message)
-            {
-                return await bot.SendTextMessageAsync(
-                    message.Chat.Id,
-                    "Removing keyboard",
-                    replyMarkup: new ReplyKeyboardRemove());
-            }
-
-            static async Task<Message> SendFile(ITelegramBotClient bot, Message message)
-            {
-                await bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
-
-                const string filePath = @"Files/tux.png";
-                using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-                var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
-                return await bot.SendPhotoAsync(
-                    message.Chat.Id,
-                    new InputOnlineFile(fileStream, fileName),
-                    "Nice Picture");
-            }
-
-            static async Task<Message> RequestContactAndLocation(ITelegramBotClient bot, Message message)
-            {
-                ReplyKeyboardMarkup RequestReplyKeyboard = new(new[]
-                {
-                    KeyboardButton.WithRequestLocation("Location"),
-                    KeyboardButton.WithRequestContact("Contact")
-                });
-                return await bot.SendTextMessageAsync(
-                    message.Chat.Id,
-                    "Who or Where are you?",
-                    replyMarkup: RequestReplyKeyboard);
-            }
-
-            static async Task<Message> Usage(ITelegramBotClient bot, Message message)
-            {
-                const string usage = "Usage:\n" +
-                                     "/inline   - send inline keyboard\n" +
-                                     "/keyboard - send custom keyboard\n" +
-                                     "/remove   - remove custom keyboard\n" +
-                                     "/photo    - send a photo\n" +
-                                     "/request  - request location or contact";
-                return await bot.SendTextMessageAsync(
-                    message.Chat.Id,
-                    usage,
-                    replyMarkup: new ReplyKeyboardRemove());
-            }
+            return await bot.SendPhotoAsync(
+                message.Chat.Id,
+                new InputOnlineFile(fileStream, fileName),
+                "Nice Picture");
         }
 
         private Task UnknownUpdateHandlerAsync(Update update)
@@ -200,37 +116,15 @@ namespace Lagalike.Telegram.Services
             return Task.CompletedTask;
         }
 
-        #region Inline Mode
-
-        private async Task BotOnInlineQueryReceived(InlineQuery inlineQuery)
+        private static async Task<Message> Usage(ITelegramBotClient bot, Message message)
         {
-            _logger.LogInformation($"Received inline query from: {inlineQuery.From.Id}");
+            const string Usage = "Usage:\n" +
+                                 "/dialog   - a demo of dialog system\n";
 
-            InlineQueryResultBase[] results =
-            {
-                // displayed result
-                new InlineQueryResultArticle(
-                    "3",
-                    "TgBots",
-                    new InputTextMessageContent(
-                        "hello"
-                    )
-                )
-            };
-
-            await _botClient.AnswerInlineQueryAsync(
-                inlineQuery.Id,
-                results,
-                isPersonal: true,
-                cacheTime: 0);
+            return await bot.SendTextMessageAsync(
+                message.Chat.Id,
+                Usage,
+                replyMarkup: new ReplyKeyboardRemove());
         }
-
-        private Task BotOnChosenInlineResultReceived(ChosenInlineResult chosenInlineResult)
-        {
-            _logger.LogInformation($"Received inline result: {chosenInlineResult.ResultId}");
-            return Task.CompletedTask;
-        }
-
-        #endregion
     }
 }

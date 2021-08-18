@@ -58,6 +58,8 @@ namespace Lagalike.Telegram
             
             services.Configure<TelegramBotConfiguration>(_botConfiguration);
             services.AddSingleton<TelegramWebhookConfiguration>();
+            
+            ModesStartup.Configure(services);
         }
 
         private void ConfigureTelegramMode(IServiceCollection services)
