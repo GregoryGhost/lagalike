@@ -1,7 +1,9 @@
 namespace Lagalike.Telegram.Modes
 {
+    using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading.Tasks;
 
     using global::Telegram.Bot;
@@ -10,6 +12,8 @@ namespace Lagalike.Telegram.Modes
     using global::Telegram.Bot.Types.ReplyMarkups;
 
     using Lagalike.GraphML.Parser;
+
+    using Microsoft.Extensions.Caching.Distributed;
 
     public class DialogSystem
     {
@@ -31,18 +35,26 @@ namespace Lagalike.Telegram.Modes
         private static readonly InlineKeyboardMarkup SceneWasUploadedInlineKeyboard = new(
             new[]
             {
-                InlineKeyboardButton.WithCallbackData("Start"),
+                InlineKeyboardButton.WithCallbackData("Start", "dialog start"),
                 AboutModeButton
             }
         );
 
         private static readonly string TitleMode = $"Dialog system. {UPLOAD_TOOLTIP}";
 
-        private readonly FileReader _graphMlFileReader;
+        private readonly DialogSystemCache _dialogSystemCache;
 
-        public DialogSystem(FileReader graphMlFileReader)
+        private readonly Loader _dialogLoader;
+
+        public DialogSystem(Loader dialogLoader, DialogSystemCache dialogSystemCache)
         {
-            _graphMlFileReader = graphMlFileReader;
+            _dialogLoader = dialogLoader;
+            _dialogSystemCache = dialogSystemCache;
+        }
+
+        public async Task GoToNextScene(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+            
         }
 
         public async Task ProccessDocumentAsync(ITelegramBotClient botClient, Message message)
@@ -60,11 +72,16 @@ namespace Lagalike.Telegram.Modes
 
             await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
-            var parsedScenesGraph = _graphMlFileReader.ReadGraphMlFile(currentDocument);
+            var parsedScenesGraph = _dialogLoader.ParseFile(currentDocument);
 
             if (parsedScenesGraph.IsSuccess)
             {
                 await botClient.SendTextMessageAsync(message.Chat.Id, "The document was successfully proccessed.");
+                await botClient.SendTextMessageAsync(
+                    message.Chat.Id,
+                    TitleMode,
+                    replyMarkup: SceneWasUploadedInlineKeyboard);
+                await _dialogSystemCache.SetAsync(message.Chat.Id.ToString(), ObjectToByteArray(parsedScenesGraph.Value));
             }
             else
             {
@@ -78,6 +95,13 @@ namespace Lagalike.Telegram.Modes
             return await SendMenuButtonsAsync(botClient, message);
         }
 
+        public async Task StartDialog(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+            var sourceScenes = await _dialogSystemCache.GetAsync(callbackQuery.From.Id.ToString());
+            var scenes = FromByteArray<Graph>(sourceScenes);
+            //TODO: proccess cached scene and display a scene discription and choices.
+        }
+
         private static async Task<Message> SendMenuButtonsAsync(ITelegramBotClient botClient, Message message)
         {
             await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
@@ -89,6 +113,23 @@ namespace Lagalike.Telegram.Modes
                 message.Chat.Id,
                 TitleMode,
                 replyMarkup: EmptyFileInlineKeyboard);
+        }
+
+        private static byte[] ObjectToByteArray<T>(T obj)
+        {
+            var bf = new BinaryFormatter();
+            using var ms = new MemoryStream();
+            bf.Serialize(ms, obj!);
+            
+            return ms.ToArray();
+        }
+        
+        private static T FromByteArray<T>(byte[] data)
+        {
+            var bf = new BinaryFormatter();
+            using var ms = new MemoryStream(data);
+            object obj = bf.Deserialize(ms);
+            return (T)obj;
         }
     }
 }

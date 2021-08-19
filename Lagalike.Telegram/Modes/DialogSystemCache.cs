@@ -1,14 +1,15 @@
 namespace Lagalike.Telegram.Modes
 {
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.Extensions.Caching.Distributed;
 
-    //TODO: implement work with a Cache for the dialog system
+    //TODO: extract to base abstract service
     public class DialogSystemCache : IDistributedCache
     {
+        private const string DEMO_NAME = "dialog";
+
         private readonly IDistributedCache _telegramCache;
 
         public DialogSystemCache(IDistributedCache telegramCache)
@@ -16,45 +17,50 @@ namespace Lagalike.Telegram.Modes
             _telegramCache = telegramCache;
         }
 
-        public byte[] Get(string key)
+        public byte[] Get(string chatId)
         {
-            throw new NotImplementedException();
+            return _telegramCache.Get(FormatCacheKey(chatId));
         }
 
-        public Task<byte[]> GetAsync(string key, CancellationToken token = new CancellationToken())
+        public Task<byte[]> GetAsync(string chatId, CancellationToken token = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return _telegramCache.GetAsync(FormatCacheKey(chatId), token);
         }
 
-        public void Refresh(string key)
+        public void Refresh(string chatId)
         {
-            throw new NotImplementedException();
+            _telegramCache.Refresh(FormatCacheKey(chatId));
         }
 
-        public Task RefreshAsync(string key, CancellationToken token = new CancellationToken())
+        public Task RefreshAsync(string chatId, CancellationToken token = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return _telegramCache.RemoveAsync(FormatCacheKey(chatId), token);
         }
 
-        public void Remove(string key)
+        public void Remove(string chatId)
         {
-            throw new NotImplementedException();
+            _telegramCache.Remove(FormatCacheKey(chatId));
         }
 
-        public Task RemoveAsync(string key, CancellationToken token = new CancellationToken())
+        public Task RemoveAsync(string chatId, CancellationToken token = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return _telegramCache.RemoveAsync(FormatCacheKey(chatId), token);
         }
 
-        public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
+        public void Set(string chatId, byte[] value, DistributedCacheEntryOptions options)
         {
-            throw new NotImplementedException();
+            _telegramCache.Set(FormatCacheKey(chatId), value, options);
         }
 
-        public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options,
+        public Task SetAsync(string chatId, byte[] value, DistributedCacheEntryOptions options,
             CancellationToken token = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return _telegramCache.SetAsync(FormatCacheKey(chatId), value, options, token);
+        }
+
+        private static string FormatCacheKey(string chatId)
+        {
+            return $"{DEMO_NAME}_{chatId}";
         }
     }
 }

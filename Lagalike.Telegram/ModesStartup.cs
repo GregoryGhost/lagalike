@@ -10,6 +10,7 @@ namespace Lagalike.Telegram
         public static void Configure(IServiceCollection services)
         {
             services.AddSingleton<DialogSystem>();
+            services.AddSingleton<DialogSystemCache>();
 
             services.AddSingleton<FileReader>();
             services.AddSingleton<Loader>();
