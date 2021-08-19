@@ -23,6 +23,19 @@ namespace Lagalike.GraphML.Parser
             return CheckExistsGraphmlFile(fileName).Bind(ReadFile);
         }
 
+        public Result<XDocument, ParseError> ReadGraphMlFile(MemoryStream document)
+        {
+            try
+            {
+                document.Position = 0;
+                return XDocument.Load(document);
+            }
+            catch (Exception)
+            {
+                return Result.Failure<XDocument, ParseError>(ParseError.WrongFormatXmlDocument);
+            }
+        }
+
         private static Result<string, ParseError> CheckExistsGraphmlFile(string filename)
         {
             return File.Exists(filename) ? filename : ParseError.NotFoundFile;

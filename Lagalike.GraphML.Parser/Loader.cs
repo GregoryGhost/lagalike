@@ -1,5 +1,7 @@
 namespace Lagalike.GraphML.Parser
 {
+    using System.IO;
+
     using CSharpFunctionalExtensions;
 
     /// <summary>
@@ -30,6 +32,13 @@ namespace Lagalike.GraphML.Parser
         public Result<Graph, ParseError> ParseFile(string fileName)
         {
             var parsedGraph = _fileReader.ReadGraphMlFile(fileName).Bind(_parser.Parse);
+
+            return parsedGraph;
+        }
+
+        public Result<Graph, ParseError> ParseFile(MemoryStream document)
+        {
+            var parsedGraph = _fileReader.ReadGraphMlFile(document).Bind(_parser.Parse);
 
             return parsedGraph;
         }

@@ -98,10 +98,25 @@ namespace Lagalike.Telegram.Services
         private async Task ProccessReceivedMessage(Message message)
         {
             _logger.LogInformation($"Receive message type: {message.Type}");
-            if (message.Type != MessageType.Text)
-                return;
 
-            var str = $"Last choised cmd: {message.Text.Split(' ').First()}";
+            var lastCmdInfo = await _conversationCache.GetAsync(message.Chat.Id.ToString());
+            if (lastCmdInfo is not null)
+            {
+                var lastCmd = Encoding.ASCII.GetString(lastCmdInfo);
+                if (lastCmd == "/dialog" && message.Type == MessageType.Document)
+                {
+                    await _dialogSystem.ProccessDocumentAsync(_botClient, message);
+                    return;
+                } 
+            }
+
+            if (message.Type != MessageType.Text)
+            {
+                await Usage(_botClient, message);
+                return;
+            }
+
+            var str = message.Text.Split(' ').First();
             var bytes = Encoding.ASCII.GetBytes(str);
             await _conversationCache.SetAsync(
                 message.Chat.Id.ToString(),
