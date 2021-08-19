@@ -1,6 +1,5 @@
 namespace Lagalike.Telegram.Modes
 {
-    using System.Diagnostics;
     using System.Threading.Tasks;
 
     using global::Telegram.Bot;
@@ -11,7 +10,7 @@ namespace Lagalike.Telegram.Modes
     public class DialogSystem
     {
         private const string UPLOAD_TOOLTIP = "You can upload a GraphML file at any time.";
-        
+
         private static readonly InlineKeyboardButton AboutModeButton = InlineKeyboardButton.WithCallbackData("About");
 
         private static readonly InlineKeyboardMarkup EmptyFileInlineKeyboard = new(AboutModeButton);

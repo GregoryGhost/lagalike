@@ -1,5 +1,7 @@
 namespace Lagalike.Telegram
 {
+    using System;
+
     using Lagalike.Telegram.Services;
 
     using Microsoft.AspNetCore.Builder;
@@ -16,12 +18,9 @@ namespace Lagalike.Telegram
 
         public Startup(IConfiguration configuration, IHostEnvironment environment)
         {
-            Configuration = configuration;
             _environment = environment;
-            _botConfiguration = Configuration.GetSection(TelegramBotConfiguration.CONFIGURATION_SECTION_NAME);
+            _botConfiguration = configuration.GetSection(TelegramBotConfiguration.CONFIGURATION_SECTION_NAME);
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -55,15 +54,15 @@ namespace Lagalike.Telegram
             // Read more about adding Newtonsoft.Json to ASP.NET Core pipeline:
             //   https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/formatting?view=aspnetcore-5.0#add-newtonsoftjson-based-json-format-support
             services.AddControllers().AddNewtonsoftJson();
-            
+
             services.Configure<TelegramBotConfiguration>(_botConfiguration);
-            services.AddSingleton<TelegramWebhookConfiguration>();
-            
+
             ModesStartup.Configure(services);
         }
 
         private void ConfigureTelegramMode(IServiceCollection services)
         {
+            services.AddDistributedMemoryCache(options => options.ExpirationScanFrequency = TimeSpan.FromHours(1));
             services.AddSingleton<HandleUpdateService>();
 
             if (_environment.IsDevelopment())
@@ -73,6 +72,7 @@ namespace Lagalike.Telegram
             }
             else
             {
+                services.AddSingleton<TelegramWebhookConfiguration>();
                 services.AddHostedService<WebhookConfigurator>();
             }
         }
