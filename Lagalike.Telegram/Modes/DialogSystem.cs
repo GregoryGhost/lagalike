@@ -26,13 +26,8 @@ namespace Lagalike.Telegram.Modes
 
         private static readonly InlineKeyboardMarkup EmptyFileInlineKeyboard = new(AboutModeButton);
 
-        private static readonly InlineKeyboardMarkup SceneWasStartedInlineKeyboard = new(
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Resume"),
-                InlineKeyboardButton.WithCallbackData("Restart"),
-                AboutModeButton
-            }
+13        private static readonly InlineKeyboardMarkup RestartDialogInlineKeyboard = new(
+            InlineKeyboardButton.WithCallbackData("Restart", "dialog start")
         );
 
         private static readonly InlineKeyboardMarkup SceneWasUploadedInlineKeyboard = new(
@@ -115,7 +110,8 @@ namespace Lagalike.Telegram.Modes
                 await botClient.EditMessageTextAsync(
                     callbackQuery.From.Id,
                     callbackQuery.Message.MessageId,
-                    currentSceneDescription.Text);
+                    currentSceneDescription.Text,
+                    replyMarkup: RestartDialogInlineKeyboard);
             }
         }
 
@@ -142,9 +138,6 @@ namespace Lagalike.Telegram.Modes
             if (callbackQueryData == "dialog start")
                 return scenes.Vertices.TryFirst();
 
-            if (callbackQueryData == "dialog resume")
-                throw new NotImplementedException();
-
             if (callbackQueryData.Contains("dialog next scene"))
             {
                 var indexId = callbackQueryData.IndexOf("id") + 2;
@@ -166,9 +159,17 @@ namespace Lagalike.Telegram.Modes
             return ms.ToArray();
         }
 
-        private static async Task<Message> SendMenuButtonsAsync(ITelegramBotClient botClient, Message message)
+        private async Task<Message> SendMenuButtonsAsync(ITelegramBotClient botClient, Message message)
         {
             await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+            var wasStartedDialog = await _dialogSystemCache.GetAsync(message.From.Id.ToString()).ConfigureAwait(false) is
+                { } bytes;
+            if (wasStartedDialog)
+                return await botClient.SendTextMessageAsync(
+                    message.Chat.Id,
+                    TitleMode,
+                    replyMarkup: SceneWasUploadedInlineKeyboard);
 
             return await botClient.SendTextMessageAsync(
                 message.Chat.Id,
