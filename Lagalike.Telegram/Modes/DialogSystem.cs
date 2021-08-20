@@ -26,7 +26,7 @@ namespace Lagalike.Telegram.Modes
 
         private static readonly InlineKeyboardMarkup EmptyFileInlineKeyboard = new(AboutModeButton);
 
-13        private static readonly InlineKeyboardMarkup RestartDialogInlineKeyboard = new(
+        private static readonly InlineKeyboardMarkup RestartDialogInlineKeyboard = new(
             InlineKeyboardButton.WithCallbackData("Restart", "dialog start")
         );
 
@@ -96,7 +96,14 @@ namespace Lagalike.Telegram.Modes
             if (foundChoices.Any())
             {
                 var choices = foundChoices.Select(
-                    choice => InlineKeyboardButton.WithCallbackData(choice.Text, FormatSceneId(choice.Target.Id)));
+                    choice =>
+                    {
+                        var (_, customVertex, text) = choice;
+                        var choiceBtn = InlineKeyboardButton.WithCallbackData(text, FormatSceneId(customVertex.Id));
+                        var choiceRow = new[] { choiceBtn };
+
+                        return choiceRow;
+                    });
                 var choicesKeyboard = new InlineKeyboardMarkup(choices);
 
                 await botClient.EditMessageTextAsync(
