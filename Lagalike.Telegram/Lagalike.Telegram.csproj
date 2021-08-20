@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <WarningsAsErrors>Nullable</WarningsAsErrors>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     </PropertyGroup>
 
     <ItemGroup>

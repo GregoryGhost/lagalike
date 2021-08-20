@@ -1,5 +1,6 @@
 namespace Lagalike.Telegram.Modes
 {
+    using System;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -54,10 +55,6 @@ namespace Lagalike.Telegram.Modes
             _dialogSystemCache = dialogSystemCache;
         }
 
-        public async Task GoToNextScene(ITelegramBotClient botClient, CallbackQuery callbackQuery)
-        {
-        }
-
         public async Task ProccessDocumentAsync(ITelegramBotClient botClient, Message message)
         {
             await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.UploadDocument);
@@ -67,22 +64,17 @@ namespace Lagalike.Telegram.Modes
             await using var currentDocument = new MemoryStream();
             await botClient.DownloadFileAsync(file.FilePath, currentDocument);
 
-            await botClient.SendTextMessageAsync(
-                message.Chat.Id,
-                "The document was successfully download.\n Start to parse the document.");
-
-            await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
-
             var parsedScenesGraph = _dialogLoader.ParseFile(currentDocument);
 
             if (parsedScenesGraph.IsSuccess)
             {
-                await botClient.SendTextMessageAsync(message.Chat.Id, "The document was successfully proccessed.");
+                await _dialogSystemCache.SetAsync(message.Chat.Id.ToString(), ObjectToByteArray(parsedScenesGraph.Value));
+
+                var wasSuccessProccessScenes = $"The document was successfully proccessed.\n {TitleMode}";
                 await botClient.SendTextMessageAsync(
                     message.Chat.Id,
-                    TitleMode,
+                    wasSuccessProccessScenes,
                     replyMarkup: SceneWasUploadedInlineKeyboard);
-                await _dialogSystemCache.SetAsync(message.Chat.Id.ToString(), ObjectToByteArray(parsedScenesGraph.Value));
             }
             else
             {
@@ -91,38 +83,50 @@ namespace Lagalike.Telegram.Modes
             }
         }
 
+        public async Task ProccessSceneDialog(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+            var sourceScenes = await _dialogSystemCache.GetAsync(callbackQuery.From.Id.ToString());
+            var scenes = FromByteArray<Graph>(sourceScenes);
+
+            var foundDescription = GetSceneDescription(scenes, callbackQuery.Data);
+            if (foundDescription.HasNoValue)
+            {
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "No found the scene.");
+                return;
+            }
+
+            var currentSceneDescription = foundDescription.Value;
+
+            var foundChoices = scenes.Edges.Where(x => x.Source == currentSceneDescription);
+            if (foundChoices.Any())
+            {
+                var choices = foundChoices.Select(
+                    choice => InlineKeyboardButton.WithCallbackData(choice.Text, FormatSceneId(choice.Target.Id)));
+                var choicesKeyboard = new InlineKeyboardMarkup(choices);
+
+                await botClient.EditMessageTextAsync(
+                    callbackQuery.From.Id,
+                    callbackQuery.Message.MessageId,
+                    currentSceneDescription.Text,
+                    replyMarkup: choicesKeyboard);
+            }
+            else
+            {
+                await botClient.EditMessageTextAsync(
+                    callbackQuery.From.Id,
+                    callbackQuery.Message.MessageId,
+                    currentSceneDescription.Text);
+            }
+        }
+
         public async Task<Message> SendMenuAsync(ITelegramBotClient botClient, Message message)
         {
             return await SendMenuButtonsAsync(botClient, message);
         }
 
-        public async Task StartDialog(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        private static string FormatSceneId(string targetId)
         {
-            var sourceScenes = await _dialogSystemCache.GetAsync(callbackQuery.From.Id.ToString());
-            var scenes = FromByteArray<Graph>(sourceScenes);
-            var foundCurrentDescription = scenes.Vertices.TryFirst();
-            if (foundCurrentDescription.HasNoValue)
-            {
-                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "No found the first scene.");
-                return;
-            }
-
-            var currentSceneDescription = foundCurrentDescription.Value;
-
-            var foundChoices = scenes.Edges.Where(x => x.Source == currentSceneDescription);
-            if (!foundChoices.Any())
-            {
-                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "No found choices for the first scene.");
-                return;
-            }
-
-            var choices = foundChoices.Select(choice => InlineKeyboardButton.WithCallbackData(choice.Text, choice.Target.Id));
-            var choicesKeyboard = new InlineKeyboardMarkup(choices);
-
-            await botClient.SendTextMessageAsync(
-                callbackQuery.From.Id,
-                currentSceneDescription.Text,
-                replyMarkup: choicesKeyboard);
+            return $"dialog next scene id{targetId}";
         }
 
         private static T FromByteArray<T>(byte[] data)
@@ -131,6 +135,26 @@ namespace Lagalike.Telegram.Modes
             using var ms = new MemoryStream(data);
             object obj = bf.Deserialize(ms);
             return (T)obj;
+        }
+
+        private static Maybe<CustomVertex> GetSceneDescription(Graph scenes, string callbackQueryData)
+        {
+            if (callbackQueryData == "dialog start")
+                return scenes.Vertices.TryFirst();
+
+            if (callbackQueryData == "dialog resume")
+                throw new NotImplementedException();
+
+            if (callbackQueryData.Contains("dialog next scene"))
+            {
+                var indexId = callbackQueryData.IndexOf("id") + 2;
+                var idToFind = callbackQueryData[indexId..];
+
+                return scenes.Vertices.TryFirst(x => x.Id == idToFind);
+            }
+
+            throw new InvalidOperationException(
+                $"Cannot match {nameof(callbackQueryData)}({callbackQueryData}) with existed cases.");
         }
 
         private static byte[] ObjectToByteArray<T>(T obj)
@@ -145,9 +169,6 @@ namespace Lagalike.Telegram.Modes
         private static async Task<Message> SendMenuButtonsAsync(ITelegramBotClient botClient, Message message)
         {
             await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
-
-            // Simulate longer running task
-            await Task.Delay(500);
 
             return await botClient.SendTextMessageAsync(
                 message.Chat.Id,

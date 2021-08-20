@@ -1,10 +1,13 @@
 namespace Lagalike.GraphML.Parser
 {
+    using System;
+
     using QuikGraph;
 
     /// <summary>
     ///     A graph represetation of parsed file in the GraphML format.
     /// </summary>
+    [Serializable]
     public class Graph : AdjacencyGraph<CustomVertex, CustomEdge>
     {
     }
@@ -15,12 +18,14 @@ namespace Lagalike.GraphML.Parser
     /// <param name="Source">A vertex from.</param>
     /// <param name="Target">A vertex to.</param>
     /// <param name="Text">A text information in the edge.</param>
+    [Serializable]
     public record CustomEdge(CustomVertex Source, CustomVertex Target, string Text) : IEdge<CustomVertex>;
 
     /// <summary>
     ///     A vertex of a parsed graph.
     /// </summary>
     /// <param name="Text">A text information.</param>
+    [Serializable]
     public record CustomVertex(string Text, string Id);
 
     /// <summary>

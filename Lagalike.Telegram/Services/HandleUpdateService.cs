@@ -82,15 +82,9 @@ namespace Lagalike.Telegram.Services
                 msg = AboutMsg;
             }
 
-            if (callbackQuery.Data == "dialog start")
+            if (callbackQuery.Data.Contains("dialog"))
             {
-                await _dialogSystem.StartDialog(_botClient, callbackQuery);
-                return;
-            }
-
-            if (callbackQuery.Data == "dialog next scene")
-            {
-                await _dialogSystem.GoToNextScene(_botClient, callbackQuery);
+                await _dialogSystem.ProccessSceneDialog(_botClient, callbackQuery);
                 return;
             }
 
