@@ -21,14 +21,14 @@ namespace Lagalike.GraphML.Parser
     ///     A vertex of a parsed graph.
     /// </summary>
     /// <param name="Text">A text information.</param>
-    public record CustomVertex(string Text);
+    public record CustomVertex(string Text, string Id);
 
     /// <summary>
     ///     A vertex of a prepared graph.
     /// </summary>
     /// <param name="Id">A the GraphML node id.</param>
     /// <param name="Text">A text information.</param>
-    internal record Vertex(string Id, string Text) : CustomVertex(Text);
+    internal record Vertex(string Id, string Text) : CustomVertex(Text, Id);
 
     /// <summary>
     ///     A edge parsed from a the GraphML file.

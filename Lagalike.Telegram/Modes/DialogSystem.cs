@@ -1,10 +1,12 @@
 namespace Lagalike.Telegram.Modes
 {
-    using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading.Tasks;
+
+    using CSharpFunctionalExtensions;
 
     using global::Telegram.Bot;
     using global::Telegram.Bot.Types;
@@ -42,9 +44,9 @@ namespace Lagalike.Telegram.Modes
 
         private static readonly string TitleMode = $"Dialog system. {UPLOAD_TOOLTIP}";
 
-        private readonly DialogSystemCache _dialogSystemCache;
-
         private readonly Loader _dialogLoader;
+
+        private readonly DialogSystemCache _dialogSystemCache;
 
         public DialogSystem(Loader dialogLoader, DialogSystemCache dialogSystemCache)
         {
@@ -54,7 +56,6 @@ namespace Lagalike.Telegram.Modes
 
         public async Task GoToNextScene(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
-            
         }
 
         public async Task ProccessDocumentAsync(ITelegramBotClient botClient, Message message)
@@ -99,7 +100,46 @@ namespace Lagalike.Telegram.Modes
         {
             var sourceScenes = await _dialogSystemCache.GetAsync(callbackQuery.From.Id.ToString());
             var scenes = FromByteArray<Graph>(sourceScenes);
-            //TODO: proccess cached scene and display a scene discription and choices.
+            var foundCurrentDescription = scenes.Vertices.TryFirst();
+            if (foundCurrentDescription.HasNoValue)
+            {
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "No found the first scene.");
+                return;
+            }
+
+            var currentSceneDescription = foundCurrentDescription.Value;
+
+            var foundChoices = scenes.Edges.Where(x => x.Source == currentSceneDescription);
+            if (!foundChoices.Any())
+            {
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "No found choices for the first scene.");
+                return;
+            }
+
+            var choices = foundChoices.Select(choice => InlineKeyboardButton.WithCallbackData(choice.Text, choice.Target.Id));
+            var choicesKeyboard = new InlineKeyboardMarkup(choices);
+
+            await botClient.SendTextMessageAsync(
+                callbackQuery.From.Id,
+                currentSceneDescription.Text,
+                replyMarkup: choicesKeyboard);
+        }
+
+        private static T FromByteArray<T>(byte[] data)
+        {
+            var bf = new BinaryFormatter();
+            using var ms = new MemoryStream(data);
+            object obj = bf.Deserialize(ms);
+            return (T)obj;
+        }
+
+        private static byte[] ObjectToByteArray<T>(T obj)
+        {
+            var bf = new BinaryFormatter();
+            using var ms = new MemoryStream();
+            bf.Serialize(ms, obj!);
+
+            return ms.ToArray();
         }
 
         private static async Task<Message> SendMenuButtonsAsync(ITelegramBotClient botClient, Message message)
@@ -113,23 +153,6 @@ namespace Lagalike.Telegram.Modes
                 message.Chat.Id,
                 TitleMode,
                 replyMarkup: EmptyFileInlineKeyboard);
-        }
-
-        private static byte[] ObjectToByteArray<T>(T obj)
-        {
-            var bf = new BinaryFormatter();
-            using var ms = new MemoryStream();
-            bf.Serialize(ms, obj!);
-            
-            return ms.ToArray();
-        }
-        
-        private static T FromByteArray<T>(byte[] data)
-        {
-            var bf = new BinaryFormatter();
-            using var ms = new MemoryStream(data);
-            object obj = bf.Deserialize(ms);
-            return (T)obj;
         }
     }
 }

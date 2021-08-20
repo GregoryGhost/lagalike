@@ -131,7 +131,9 @@
         private static Result<Graph, ParseError> PrepareGraph(List<IGraphMlElement> parsedGraphMlElements)
         {
             var (edges, vertixes) = parsedGraphMlElements.Partition(x => x is GraphMlEdge);
-            var vertexIndexes = vertixes.Cast<Vertex>().ToDictionary(x => x.Id, vertex => new CustomVertex(vertex.Text));
+            var vertexIndexes = vertixes.Cast<Vertex>().ToDictionary(
+                x => x.Id,
+                vertex => new CustomVertex(vertex.Text, vertex.Id));
             var preparedGraph = edges.Cast<GraphMlEdge>().Aggregate(
                 new Graph(),
                 (graph, graphMlEdge) => CollectGraphElements(graphMlEdge, vertexIndexes, graph));

@@ -10,28 +10,28 @@ namespace Lagalike.GraphML.Parser.Tests
         private static readonly Dictionary<Scene, CustomVertex> Scenes = new()
         {
             {
-                Scene.Scene1Root, new CustomVertex("Сцена1 - бла-бла много текста")
+                Scene.Scene1Root, new CustomVertex("Сцена1 - бла-бла много текста", ToGraphMlVertexNumber(Scene.Scene1Root))
             },
             {
-                Scene.Scene2, new CustomVertex("Сцена 2 бла-бла")
+                Scene.Scene2, new CustomVertex("Сцена 2 бла-бла", ToGraphMlVertexNumber(Scene.Scene2))
             },
             {
-                Scene.Scene3, new CustomVertex("Сцена 3 бла-бла")
+                Scene.Scene3, new CustomVertex("Сцена 3 бла-бла", ToGraphMlVertexNumber(Scene.Scene3))
             },
             {
-                Scene.Scene4, new CustomVertex("Сцена 4 бла-бла")
+                Scene.Scene4, new CustomVertex("Сцена 4 бла-бла", ToGraphMlVertexNumber(Scene.Scene4))
             },
             {
-                Scene.Scene5, new CustomVertex("Сцена 5 бла-бла")
+                Scene.Scene5, new CustomVertex("Сцена 5 бла-бла", ToGraphMlVertexNumber(Scene.Scene5))
             },
             {
-                Scene.Scene6, new CustomVertex("Сцена 6 бла-бла")
+                Scene.Scene6, new CustomVertex("Сцена 6 бла-бла", ToGraphMlVertexNumber(Scene.Scene6))
             },
             {
-                Scene.Scene7, new CustomVertex("Сцена 7 бла-бла")
+                Scene.Scene7, new CustomVertex("Сцена 7 бла-бла", ToGraphMlVertexNumber(Scene.Scene7))
             },
             {
-                Scene.Scene8, new CustomVertex("Сцена 8 бла-бла")
+                Scene.Scene8, new CustomVertex("Сцена 8 бла-бла", ToGraphMlVertexNumber(Scene.Scene8))
             }
         };
 
@@ -57,6 +57,11 @@ namespace Lagalike.GraphML.Parser.Tests
             graph.AddVerticesAndEdgeRange(Edges);
 
             return graph;
+        }
+
+        private static string ToGraphMlVertexNumber(Scene scene)
+        {
+            return $"n{scene:D}";
         }
     }
 
