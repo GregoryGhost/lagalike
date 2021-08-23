@@ -2,7 +2,6 @@ namespace Lagalike.Telegram.Services
 {
     using System;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
 
     using global::Telegram.Bot;
@@ -13,21 +12,21 @@ namespace Lagalike.Telegram.Services
 
     using Lagalike.Telegram.Modes;
 
-    using Microsoft.Extensions.Caching.Distributed;
+    using Microsoft.Extensions.Caching.Memory;
     using Microsoft.Extensions.Logging;
 
     public class HandleUpdateService
     {
         private readonly ConfiguredTelegramBotClient _botClient;
 
-        private readonly IDistributedCache _conversationCache;
+        private readonly IMemoryCache _conversationCache;
 
         private readonly DialogSystem _dialogSystem;
 
         private readonly ILogger<HandleUpdateService> _logger;
 
         public HandleUpdateService(ConfiguredTelegramBotClient botClient, ILogger<HandleUpdateService> logger,
-            DialogSystem dialogSystem, IDistributedCache conversationCache)
+            DialogSystem dialogSystem, IMemoryCache conversationCache)
         {
             _botClient = botClient;
             _logger = logger;
@@ -88,14 +87,6 @@ namespace Lagalike.Telegram.Services
                 return;
             }
 
-            var bytes = await _conversationCache.GetAsync(callbackQuery.From.Id.ToString());
-            if (bytes is not null)
-            {
-                var str = Encoding.ASCII.GetString(bytes);
-                await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, str);
-                return;
-            }
-
             await _botClient.SendTextMessageAsync(
                 callbackQuery.Message.Chat.Id,
                 msg);
@@ -105,15 +96,15 @@ namespace Lagalike.Telegram.Services
         {
             _logger.LogInformation($"Receive message type: {message.Type}");
 
-            var lastCmdInfo = await _conversationCache.GetAsync(message.Chat.Id.ToString());
-            if (lastCmdInfo is not null)
+            var hasLastCmdInfo = _conversationCache.TryGetValue(message.Chat.Id.ToString(), out var lastCmdInfo);
+            if (hasLastCmdInfo)
             {
-                var lastCmd = Encoding.ASCII.GetString(lastCmdInfo);
+                var lastCmd = lastCmdInfo as string;
                 if (lastCmd == "/dialog" && message.Type == MessageType.Document)
                 {
                     await _dialogSystem.ProccessDocumentAsync(_botClient, message);
                     return;
-                } 
+                }
             }
 
             if (message.Type != MessageType.Text)
@@ -122,11 +113,10 @@ namespace Lagalike.Telegram.Services
                 return;
             }
 
-            var str = message.Text.Split(' ').First();
-            var bytes = Encoding.ASCII.GetBytes(str);
-            await _conversationCache.SetAsync(
+            var cmd = message.Text.Split(' ').First();
+            _conversationCache.Set(
                 message.Chat.Id.ToString(),
-                bytes
+                cmd
             );
 
             var action = message.Text.Split(' ').First() switch

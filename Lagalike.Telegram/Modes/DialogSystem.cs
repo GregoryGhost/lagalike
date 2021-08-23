@@ -4,7 +4,6 @@ namespace Lagalike.Telegram.Modes
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading.Tasks;
 
     using CSharpFunctionalExtensions;
@@ -15,8 +14,6 @@ namespace Lagalike.Telegram.Modes
     using global::Telegram.Bot.Types.ReplyMarkups;
 
     using Lagalike.GraphML.Parser;
-
-    using Microsoft.Extensions.Caching.Distributed;
 
     public class DialogSystem
     {
@@ -63,7 +60,7 @@ namespace Lagalike.Telegram.Modes
 
             if (parsedScenesGraph.IsSuccess)
             {
-                await _dialogSystemCache.SetAsync(message.Chat.Id.ToString(), ObjectToByteArray(parsedScenesGraph.Value));
+                _dialogSystemCache.Set(message.Chat.Id.ToString(), parsedScenesGraph.Value);
 
                 var wasSuccessProccessScenes = $"The document was successfully proccessed.\n {TitleMode}";
                 await botClient.SendTextMessageAsync(
@@ -80,8 +77,12 @@ namespace Lagalike.Telegram.Modes
 
         public async Task ProccessSceneDialog(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
-            var sourceScenes = await _dialogSystemCache.GetAsync(callbackQuery.From.Id.ToString());
-            var scenes = FromByteArray<Graph>(sourceScenes);
+            var hasScenes = _dialogSystemCache.TryGetValue(callbackQuery.From.Id.ToString(), out var scenes);
+            if (!hasScenes)
+            {
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Have no the scene.");
+                return;
+            }
 
             var foundDescription = GetSceneDescription(scenes, callbackQuery.Data);
             if (foundDescription.HasNoValue)
@@ -132,14 +133,6 @@ namespace Lagalike.Telegram.Modes
             return $"dialog next scene id{targetId}";
         }
 
-        private static T FromByteArray<T>(byte[] data)
-        {
-            var bf = new BinaryFormatter();
-            using var ms = new MemoryStream(data);
-            object obj = bf.Deserialize(ms);
-            return (T)obj;
-        }
-
         private static Maybe<CustomVertex> GetSceneDescription(Graph scenes, string callbackQueryData)
         {
             if (callbackQueryData == "dialog start")
@@ -157,21 +150,11 @@ namespace Lagalike.Telegram.Modes
                 $"Cannot match {nameof(callbackQueryData)}({callbackQueryData}) with existed cases.");
         }
 
-        private static byte[] ObjectToByteArray<T>(T obj)
-        {
-            var bf = new BinaryFormatter();
-            using var ms = new MemoryStream();
-            bf.Serialize(ms, obj!);
-
-            return ms.ToArray();
-        }
-
         private async Task<Message> SendMenuButtonsAsync(ITelegramBotClient botClient, Message message)
         {
             await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
-            var wasStartedDialog = await _dialogSystemCache.GetAsync(message.From.Id.ToString()).ConfigureAwait(false) is
-                { } bytes;
+            var wasStartedDialog = _dialogSystemCache.TryGetValue(message.From.Id.ToString(), out _);
             if (wasStartedDialog)
                 return await botClient.SendTextMessageAsync(
                     message.Chat.Id,

@@ -62,7 +62,7 @@ namespace Lagalike.Telegram
 
         private void ConfigureTelegramMode(IServiceCollection services)
         {
-            services.AddDistributedMemoryCache(options => options.ExpirationScanFrequency = TimeSpan.FromHours(1));
+            services.AddMemoryCache(options => options.ExpirationScanFrequency = TimeSpan.FromHours(1));
             services.AddSingleton<HandleUpdateService>();
 
             if (_environment.IsDevelopment())
