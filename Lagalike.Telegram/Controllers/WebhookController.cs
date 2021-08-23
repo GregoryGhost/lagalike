@@ -1,5 +1,6 @@
 namespace Lagalike.Telegram.Controllers
 {
+    using System.Reflection;
     using System.Threading.Tasks;
 
     using global::Telegram.Bot.Types;
@@ -10,6 +11,15 @@ namespace Lagalike.Telegram.Controllers
 
     public class WebhookController : ControllerBase
     {
+        private const string DEFAULT_APP_VERSION = "0.0.0";
+
+        [HttpGet("/version")]
+        public Task<IActionResult> AppVersion()
+        {
+            var appVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? DEFAULT_APP_VERSION;
+            return Task.FromResult<IActionResult>(Ok(appVersion));
+        }
+
         [HttpGet("/")]
         [HttpGet("/health-check")]
         public Task<IActionResult> HealthCheck()
