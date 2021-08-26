@@ -5,7 +5,7 @@ namespace Lagalike.Telegram.Modes
     using Microsoft.Extensions.Caching.Memory;
 
     /// <summary>
-    /// A cache for dialog system demo mode.
+    ///     A cache for dialog system demo mode.
     /// </summary>
     public class DialogSystemCache : BaseTelegramBotCache<Graph>
     {

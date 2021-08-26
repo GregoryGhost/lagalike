@@ -1,7 +1,6 @@
 namespace Lagalike.GraphML.Parser.Tests
 {
     using System.IO;
-    using System.Linq;
 
     using CSharpFunctionalExtensions;
 

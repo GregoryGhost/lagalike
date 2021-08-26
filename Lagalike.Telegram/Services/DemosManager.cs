@@ -6,9 +6,9 @@ namespace Lagalike.Telegram.Services
 
     public class DemosManager
     {
-        private readonly DemoRegistrator _registrator;
-
         private readonly string _availableDemosUsage;
+
+        private readonly DemoRegistrator _registrator;
 
         public DemosManager(DemoRegistrator registrator)
         {
@@ -16,18 +16,14 @@ namespace Lagalike.Telegram.Services
             _availableDemosUsage = FormatUsageAvailableDemoCommands();
         }
 
+        public IModeSystem? GetByName(string demoName)
+        {
+            return _registrator.GetRegistratedModule(demoName);
+        }
+
         public string GetDemosUsage()
         {
             return _availableDemosUsage;
-        }
-
-        private string FormatUsageAvailableDemoCommands()
-        {
-            var demoInfos = _registrator.GetRegistratedModules().Select(FormatDemoUsage);
-            var availableCmds = string.Join("\n", demoInfos);
-            var usage = $"Usage:\n{availableCmds}";
-
-            return usage;
         }
 
         private static string FormatDemoUsage(IModeSystem demoSystem)
@@ -39,9 +35,13 @@ namespace Lagalike.Telegram.Services
             return demoUsage;
         }
 
-        public IModeSystem? GetByName(string demoName)
+        private string FormatUsageAvailableDemoCommands()
         {
-            return _registrator.GetRegistratedModule(demoName);
+            var demoInfos = _registrator.GetRegistratedModules().Select(FormatDemoUsage);
+            var availableCmds = string.Join("\n", demoInfos);
+            var usage = $"Usage:\n{availableCmds}";
+
+            return usage;
         }
     }
 }

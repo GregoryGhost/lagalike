@@ -16,9 +16,9 @@ namespace Lagalike.Telegram.Services
             }
         }
 
-        private void Registrate(IModeSystem demo)
+        public IModeSystem? GetRegistratedModule(string moduleName)
         {
-            _demos.Add(demo.Info.Name, demo);
+            return _demos.TryGetValue(moduleName, out var foundModule) ? foundModule : null;
         }
 
         public IEnumerable<IModeSystem> GetRegistratedModules()
@@ -26,9 +26,9 @@ namespace Lagalike.Telegram.Services
             return _demos.Values;
         }
 
-        public IModeSystem? GetRegistratedModule(string moduleName)
+        private void Registrate(IModeSystem demo)
         {
-            return _demos.TryGetValue(moduleName, out var foundModule) ? foundModule : null;
+            _demos.Add(demo.Info.Name, demo);
         }
     }
 }

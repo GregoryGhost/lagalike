@@ -5,27 +5,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Telegram.Bot" Version="16.0.0" />
+        <PackageReference Include="Telegram.Bot" Version="16.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Lagalike.GraphML.Parser\Lagalike.GraphML.Parser.csproj" />
-      <ProjectReference Include="..\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj" />
+        <ProjectReference Include="..\Lagalike.GraphML.Parser\Lagalike.GraphML.Parser.csproj"/>
+        <ProjectReference Include="..\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="Microsoft.AspNetCore.Hosting.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-        <HintPath>..\..\..\..\..\..\..\usr\share\dotnet\shared\Microsoft.AspNetCore.App\5.0.7\Microsoft.AspNetCore.Hosting.Abstractions.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.AspNetCore.Http.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-        <HintPath>..\..\..\..\..\..\..\usr\share\dotnet\shared\Microsoft.AspNetCore.App\5.0.7\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-        <HintPath>..\..\..\..\..\..\..\usr\share\dotnet\shared\Microsoft.AspNetCore.App\5.0.7\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-        <HintPath>..\..\..\..\..\..\..\usr\share\dotnet\shared\Microsoft.AspNetCore.App\5.0.7\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
-      </Reference>
+        <Reference Include="Microsoft.AspNetCore.Hosting.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+            <HintPath>..\..\..\..\..\..\..\usr\share\dotnet\shared\Microsoft.AspNetCore.App\5.0.7\Microsoft.AspNetCore.Hosting.Abstractions.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.AspNetCore.Http.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+            <HintPath>..\..\..\..\..\..\..\usr\share\dotnet\shared\Microsoft.AspNetCore.App\5.0.7\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+            <HintPath>..\..\..\..\..\..\..\usr\share\dotnet\shared\Microsoft.AspNetCore.App\5.0.7\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+            <HintPath>..\..\..\..\..\..\..\usr\share\dotnet\shared\Microsoft.AspNetCore.App\5.0.7\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>

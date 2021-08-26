@@ -9,7 +9,7 @@ namespace Lagalike.Telegram.Modes
 
         private const string SHORT_DESCRIPTION = "a demo of a simple dialog system";
 
-        private static readonly ModeInfo ModeInfo = new (
+        private static readonly ModeInfo ModeInfo = new(
             MODE_NAME,
             ABOUT_DESCRIPTION,
             SHORT_DESCRIPTION);

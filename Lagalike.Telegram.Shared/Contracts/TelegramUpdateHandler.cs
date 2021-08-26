@@ -6,6 +6,6 @@ namespace Lagalike.Telegram.Modes
 
     public interface ITelegramUpdateHandler
     {
-        Task HandleUpdateAsync(Update update); 
+        Task HandleUpdateAsync(Update update);
     }
 }

@@ -7,10 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CSharpFunctionalExtensions" Version="2.17.0" />
-      <PackageReference Include="EnumWithValues" Version="1.0.8" />
-      <PackageReference Include="morelinq" Version="3.3.2" />
-      <PackageReference Include="QuikGraph" Version="2.3.0" />
+        <PackageReference Include="CSharpFunctionalExtensions" Version="2.17.0"/>
+        <PackageReference Include="EnumWithValues" Version="1.0.8"/>
+        <PackageReference Include="morelinq" Version="3.3.2"/>
+        <PackageReference Include="QuikGraph" Version="2.3.0"/>
     </ItemGroup>
 
 </Project>

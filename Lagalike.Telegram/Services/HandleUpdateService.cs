@@ -1,15 +1,12 @@
 namespace Lagalike.Telegram.Services
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Linq;
     using System.Threading.Tasks;
 
-    using global::Telegram.Bot;
     using global::Telegram.Bot.Exceptions;
     using global::Telegram.Bot.Types;
     using global::Telegram.Bot.Types.Enums;
-    using global::Telegram.Bot.Types.ReplyMarkups;
 
     using Lagalike.Telegram.Modes;
 
@@ -20,15 +17,15 @@ namespace Lagalike.Telegram.Services
 
     public class HandleUpdateService
     {
+        private readonly string _availableDemosUsage;
+
         private readonly ConfiguredTelegramBotClient _botClient;
 
         private readonly TelegramConversationCache _conversationCache;
 
-        private readonly ILogger<HandleUpdateService> _logger;
-
-        private readonly string _availableDemosUsage;
-
         private readonly DemosManager _demosManager;
+
+        private readonly ILogger<HandleUpdateService> _logger;
 
         public HandleUpdateService(ConfiguredTelegramBotClient botClient, ILogger<HandleUpdateService> logger,
             TelegramConversationCache conversationCache, DemosManager demosManager)
@@ -66,6 +63,21 @@ namespace Lagalike.Telegram.Services
             }
         }
 
+        private ConversationState? CacheDemoState(string chatId, string parsedCmd)
+        {
+            var demo = _demosManager.GetByName(parsedCmd);
+            if (demo is null)
+                return null;
+
+            var demoState = new ConversationState(demo);
+            _conversationCache.Set(
+                chatId,
+                demoState
+            );
+
+            return demoState;
+        }
+
         private async Task GetHandlerAsync(Update update)
         {
             var handler = update.Type switch
@@ -96,34 +108,15 @@ namespace Lagalike.Telegram.Services
         {
             var chatId = telegramUserUpdate.Message.From.Id.ToString();
             if (_conversationCache.TryGetValue(chatId, out var telegramUserData))
-            {
                 return telegramUserData;
-            }
 
             if (telegramUserUpdate.Message.Type != MessageType.Text)
                 return null;
-            
+
             var parsedCmd = telegramUserUpdate.Message.Text.Split(' ').First();
             var cachedDemoState = CacheDemoState(chatId, parsedCmd);
-            
+
             return cachedDemoState;
-        }
-
-        private ConversationState? CacheDemoState(string chatId, string parsedCmd)
-        {
-            var demo = _demosManager.GetByName(parsedCmd);
-            if (demo is null)
-            {
-                return null;
-            }
-            
-            var demoState = new ConversationState(demo);
-            _conversationCache.Set(
-                chatId,
-                demoState
-            );
-
-            return demoState;
         }
 
         private Task UnknownUpdateHandlerAsync(Update update)
