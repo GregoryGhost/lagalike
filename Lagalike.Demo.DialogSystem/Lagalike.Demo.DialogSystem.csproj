@@ -5,12 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Telegram.Bot" Version="16.0.0"/>
+        <PackageReference Include="Telegram.Bot" Version="16.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Lagalike.GraphML.Parser\Lagalike.GraphML.Parser.csproj"/>
-        <ProjectReference Include="..\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj"/>
+        <ProjectReference Include="..\Lagalike.GraphML.Parser\Lagalike.GraphML.Parser.csproj" />
+        <ProjectReference Include="..\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -13,29 +13,33 @@ namespace Lagalike.Telegram.Modes
     using global::Telegram.Bot.Types.Enums;
     using global::Telegram.Bot.Types.ReplyMarkups;
 
+    using Lagalike.Demo.DialogSystem.Constants;
     using Lagalike.GraphML.Parser;
 
     public class HandleUpdateService : ITelegramUpdateHandler
     {
         private const string UPLOAD_TOOLTIP = "You can upload a GraphML file at any time.";
 
-        private static readonly InlineKeyboardButton AboutModeButton = InlineKeyboardButton.WithCallbackData("About");
+        private static readonly InlineKeyboardButton AboutModeButton = GetInlineKeyboardButton(AvailableDemoCommands.About);
 
         private static readonly InlineKeyboardMarkup EmptyFileInlineKeyboard = new(AboutModeButton);
 
         private static readonly InlineKeyboardMarkup RestartDialogInlineKeyboard = new(
-            InlineKeyboardButton.WithCallbackData("Restart", "dialog start")
+            GetInlineKeyboardButton(AvailableDemoCommands.Restart)
         );
 
         private static readonly InlineKeyboardMarkup SceneWasUploadedInlineKeyboard = new(
             new[]
             {
-                InlineKeyboardButton.WithCallbackData("Start", "dialog start"),
+                GetInlineKeyboardButton(AvailableDemoCommands.Start),
                 AboutModeButton
             }
         );
 
         private static readonly string TitleMode = $"Dialog system. {UPLOAD_TOOLTIP}";
+
+        private static readonly string WasSuccessfullyProccessedSceneDocument =
+            $"The document was successfully proccessed.\n {TitleMode}";
 
         private readonly ITelegramBotClient _botClient;
 
@@ -43,11 +47,15 @@ namespace Lagalike.Telegram.Modes
 
         private readonly DialogSystemCache _dialogSystemCache;
 
-        public HandleUpdateService(ITelegramBotClient botClient, Loader dialogLoader, DialogSystemCache dialogSystemCache)
+        private readonly ModeInfo _modeInfo;
+
+        public HandleUpdateService(ITelegramBotClient botClient, Loader dialogLoader, DialogSystemCache dialogSystemCache,
+            ModeSystem modeSystem)
         {
             _botClient = botClient;
             _dialogLoader = dialogLoader;
             _dialogSystemCache = dialogSystemCache;
+            _modeInfo = modeSystem.Info;
         }
 
         public Task HandleUpdateAsync(Update update)
@@ -57,21 +65,36 @@ namespace Lagalike.Telegram.Modes
 
         private static string FormatSceneId(string targetId)
         {
-            return $"dialog next scene id{targetId}";
+            return $"{ModeSystem.MODE_NAME} next scene id{targetId}";
+        }
+
+        private static InlineKeyboardButton GetInlineKeyboardButton(CommandInfo command)
+        {
+            var (userLabel, commandValue) = command;
+            return InlineKeyboardButton.WithCallbackData(userLabel, commandValue);
+        }
+
+        private static Maybe<CustomVertex> GetNextScene(Graph scenes, string callbackQueryData)
+        {
+            var indexId = GetNextScene(callbackQueryData);
+            var idToFind = callbackQueryData[indexId..];
+
+            return scenes.Vertices.TryFirst(x => x.Id == idToFind);
+        }
+
+        private static int GetNextScene(string callbackQueryData)
+        {
+            var indexId = callbackQueryData.IndexOf("id") + 2;
+            return indexId;
         }
 
         private static Maybe<CustomVertex> GetSceneDescription(Graph scenes, string callbackQueryData)
         {
-            if (callbackQueryData == "dialog start")
+            if (callbackQueryData == AvailableDemoCommands.Start.CommandValue)
                 return scenes.Vertices.TryFirst();
 
-            if (callbackQueryData.Contains("dialog next scene"))
-            {
-                var indexId = callbackQueryData.IndexOf("id") + 2;
-                var idToFind = callbackQueryData[indexId..];
-
-                return scenes.Vertices.TryFirst(x => x.Id == idToFind);
-            }
+            if (IsCommandToProccessNextSceneDialog(callbackQueryData))
+                return GetNextScene(scenes, callbackQueryData);
 
             throw new InvalidOperationException(
                 $"Cannot match {nameof(callbackQueryData)}({callbackQueryData}) with existed cases.");
@@ -87,6 +110,16 @@ namespace Lagalike.Telegram.Modes
             return currentDocument;
         }
 
+        private static bool IsCommandToProccessNextSceneDialog(string callbackQueryData)
+        {
+            return callbackQueryData.Contains(AvailableDemoCommands.ProccessNextScene.CommandValue);
+        }
+
+        private static bool IsCommandToProccessSceneDialog(CallbackQuery callbackQuery)
+        {
+            return callbackQuery.Data.Contains(ModeSystem.MODE_NAME);
+        }
+
         private async Task ParseSceneFile(Message message, MemoryStream currentDocument)
         {
             var parsedScenesGraph = _dialogLoader.ParseFile(currentDocument);
@@ -95,10 +128,9 @@ namespace Lagalike.Telegram.Modes
             {
                 _dialogSystemCache.Set(message.Chat.Id.ToString(), parsedScenesGraph.Value);
 
-                var wasSuccessProccessScenes = $"The document was successfully proccessed.\n {TitleMode}";
                 await _botClient.SendTextMessageAsync(
                     message.Chat.Id,
-                    wasSuccessProccessScenes,
+                    WasSuccessfullyProccessedSceneDocument,
                     replyMarkup: SceneWasUploadedInlineKeyboard);
             }
             else
@@ -120,14 +152,10 @@ namespace Lagalike.Telegram.Modes
         private async Task ProccessInlineKeyboardCallbackData(CallbackQuery callbackQuery)
         {
             var msg = "It's nothing.";
-            if (callbackQuery.Data == "About")
-            {
-                const string AboutMsg = "A demo of a dialog system based on the GrahpML format file.\n" +
-                                        "The GraphML format files you can create in the https://www.yworks.com/products/yed.";
-                msg = AboutMsg;
-            }
+            if (callbackQuery.Data == AvailableDemoCommands.About.CommandValue)
+                msg = _modeInfo.AboutDescription;
 
-            if (callbackQuery.Data.Contains("dialog"))
+            if (IsCommandToProccessSceneDialog(callbackQuery))
             {
                 await ProccessSceneDialog(callbackQuery);
                 return;
