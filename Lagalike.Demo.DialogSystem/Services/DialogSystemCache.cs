@@ -9,11 +9,9 @@ namespace Lagalike.Telegram.Modes
     /// </summary>
     public class DialogSystemCache : BaseTelegramBotCache<Graph>
     {
-        private const string DEMO_CACHE_NAME = "dialog";
-
         /// <inheritdoc />
         public DialogSystemCache(IMemoryCache telegramCache)
-            : base(telegramCache, DEMO_CACHE_NAME)
+            : base(telegramCache, ModeSystem.MODE_NAME)
         {
         }
     }
