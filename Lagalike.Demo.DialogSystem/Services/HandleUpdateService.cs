@@ -55,15 +55,40 @@ namespace Lagalike.Telegram.Modes
             throw new NotImplementedException();
         }
 
-        public async Task ProccessDocumentAsync(Message message)
+        private static string FormatSceneId(string targetId)
         {
-            await _botClient.SendChatActionAsync(message.Chat.Id, ChatAction.UploadDocument);
+            return $"dialog next scene id{targetId}";
+        }
 
+        private static Maybe<CustomVertex> GetSceneDescription(Graph scenes, string callbackQueryData)
+        {
+            if (callbackQueryData == "dialog start")
+                return scenes.Vertices.TryFirst();
+
+            if (callbackQueryData.Contains("dialog next scene"))
+            {
+                var indexId = callbackQueryData.IndexOf("id") + 2;
+                var idToFind = callbackQueryData[indexId..];
+
+                return scenes.Vertices.TryFirst(x => x.Id == idToFind);
+            }
+
+            throw new InvalidOperationException(
+                $"Cannot match {nameof(callbackQueryData)}({callbackQueryData}) with existed cases.");
+        }
+
+        private async Task<MemoryStream> GetSceneFileAsync(Message message)
+        {
             var file = await _botClient.GetFileAsync(message.Document.FileId);
 
             await using var currentDocument = new MemoryStream();
             await _botClient.DownloadFileAsync(file.FilePath, currentDocument);
 
+            return currentDocument;
+        }
+
+        private async Task ParseSceneFile(Message message, MemoryStream currentDocument)
+        {
             var parsedScenesGraph = _dialogLoader.ParseFile(currentDocument);
 
             if (parsedScenesGraph.IsSuccess)
@@ -83,7 +108,37 @@ namespace Lagalike.Telegram.Modes
             }
         }
 
-        public async Task ProccessSceneDialog(CallbackQuery callbackQuery)
+        private async Task ProccessDocumentAsync(Message message)
+        {
+            await _botClient.SendChatActionAsync(message.Chat.Id, ChatAction.UploadDocument);
+
+            await using var currentDocument = await GetSceneFileAsync(message);
+
+            await ParseSceneFile(message, currentDocument);
+        }
+
+        private async Task ProccessInlineKeyboardCallbackData(CallbackQuery callbackQuery)
+        {
+            var msg = "It's nothing.";
+            if (callbackQuery.Data == "About")
+            {
+                const string AboutMsg = "A demo of a dialog system based on the GrahpML format file.\n" +
+                                        "The GraphML format files you can create in the https://www.yworks.com/products/yed.";
+                msg = AboutMsg;
+            }
+
+            if (callbackQuery.Data.Contains("dialog"))
+            {
+                await ProccessSceneDialog(callbackQuery);
+                return;
+            }
+
+            await _botClient.SendTextMessageAsync(
+                callbackQuery.Message.Chat.Id,
+                msg);
+        }
+
+        private async Task ProccessSceneDialog(CallbackQuery callbackQuery)
         {
             var hasScenes = _dialogSystemCache.TryGetValue(callbackQuery.From.Id.ToString(), out var scenes);
             if (!hasScenes)
@@ -129,49 +184,6 @@ namespace Lagalike.Telegram.Modes
                     currentSceneDescription.Text,
                     replyMarkup: RestartDialogInlineKeyboard);
             }
-        }
-
-        private static string FormatSceneId(string targetId)
-        {
-            return $"dialog next scene id{targetId}";
-        }
-
-        private static Maybe<CustomVertex> GetSceneDescription(Graph scenes, string callbackQueryData)
-        {
-            if (callbackQueryData == "dialog start")
-                return scenes.Vertices.TryFirst();
-
-            if (callbackQueryData.Contains("dialog next scene"))
-            {
-                var indexId = callbackQueryData.IndexOf("id") + 2;
-                var idToFind = callbackQueryData[indexId..];
-
-                return scenes.Vertices.TryFirst(x => x.Id == idToFind);
-            }
-
-            throw new InvalidOperationException(
-                $"Cannot match {nameof(callbackQueryData)}({callbackQueryData}) with existed cases.");
-        }
-
-        private async Task ProccessInlineKeyboardCallbackData(CallbackQuery callbackQuery)
-        {
-            var msg = "It's nothing.";
-            if (callbackQuery.Data == "About")
-            {
-                const string AboutMsg = "A demo of a dialog system based on the GrahpML format file.\n" +
-                                        "The GraphML format files you can create in the https://www.yworks.com/products/yed.";
-                msg = AboutMsg;
-            }
-
-            if (callbackQuery.Data.Contains("dialog"))
-            {
-                await ProccessSceneDialog(callbackQuery);
-                return;
-            }
-
-            await _botClient.SendTextMessageAsync(
-                callbackQuery.Message.Chat.Id,
-                msg);
         }
 
         private async Task<Message> SendMenuButtonsAsync(Message message)
