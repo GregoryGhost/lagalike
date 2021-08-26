@@ -56,13 +56,12 @@ namespace Lagalike.Telegram
             services.AddControllers().AddNewtonsoftJson();
 
             services.Configure<TelegramBotConfiguration>(_botConfiguration);
-
-            ModesStartup.Configure(services);
         }
 
         private void ConfigureTelegramMode(IServiceCollection services)
         {
             services.AddMemoryCache(options => options.ExpirationScanFrequency = TimeSpan.FromHours(1));
+            services.AddSingleton<TelegramConversationCache>();
             services.AddSingleton<HandleUpdateService>();
 
             if (_environment.IsDevelopment())

@@ -1,6 +1,7 @@
 namespace Lagalike.Telegram.Services
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -15,23 +16,28 @@ namespace Lagalike.Telegram.Services
     using Microsoft.Extensions.Caching.Memory;
     using Microsoft.Extensions.Logging;
 
+    using Newtonsoft.Json;
+
     public class HandleUpdateService
     {
         private readonly ConfiguredTelegramBotClient _botClient;
 
-        private readonly IMemoryCache _conversationCache;
-
-        private readonly DialogSystem _dialogSystem;
+        private readonly TelegramConversationCache _conversationCache;
 
         private readonly ILogger<HandleUpdateService> _logger;
 
+        private readonly string _availableDemosUsage;
+
+        private readonly DemosManager _demosManager;
+
         public HandleUpdateService(ConfiguredTelegramBotClient botClient, ILogger<HandleUpdateService> logger,
-            DialogSystem dialogSystem, IMemoryCache conversationCache)
+            TelegramConversationCache conversationCache, DemosManager demosManager)
         {
             _botClient = botClient;
             _logger = logger;
-            _dialogSystem = dialogSystem;
             _conversationCache = conversationCache;
+            _demosManager = demosManager;
+            _availableDemosUsage = _demosManager.GetDemosUsage();
         }
 
         public Task HandleErrorAsync(Exception exception)
@@ -60,72 +66,64 @@ namespace Lagalike.Telegram.Services
             }
         }
 
-        private Task GetHandlerAsync(Update update)
+        private async Task GetHandlerAsync(Update update)
         {
-            return update.Type switch
+            var handler = update.Type switch
             {
-                UpdateType.Message => ProccessReceivedMessage(update.Message),
-                UpdateType.EditedMessage => ProccessReceivedMessage(update.Message),
-                UpdateType.CallbackQuery => ProccessInlineKeyboardCallbackData(update.CallbackQuery),
+                UpdateType.Message or UpdateType.EditedMessage or UpdateType.CallbackQuery => HandleDemoUpdaterAsync(update),
                 _ => UnknownUpdateHandlerAsync(update)
             };
+
+            await handler;
         }
 
-        private async Task ProccessInlineKeyboardCallbackData(CallbackQuery callbackQuery)
+        private async Task HandleDemoUpdaterAsync(Update telegramUserUpdate)
         {
-            var msg = "It's nothing.";
-            if (callbackQuery.Data == "About")
+            var currentTelegramUserDemo = TryGetCurrentTelegramUserDemo(telegramUserUpdate);
+            if (currentTelegramUserDemo is not null)
             {
-                const string AboutMsg = "A demo of a dialog system based on the GrahpML format file.\n" +
-                                        "The GraphML format files you can create in the https://www.yworks.com/products/yed.";
-                msg = AboutMsg;
+                await currentTelegramUserDemo.SelectedDemoMode.HandleUpdateAsync(telegramUserUpdate);
             }
-
-            if (callbackQuery.Data.Contains("dialog"))
+            else
             {
-                await _dialogSystem.ProccessSceneDialog(_botClient, callbackQuery);
-                return;
-            }
+                _logger.LogWarning($"Gotten an unknown demo mode for {JsonConvert.SerializeObject(telegramUserUpdate)}");
 
-            await _botClient.SendTextMessageAsync(
-                callbackQuery.Message.Chat.Id,
-                msg);
+                await Usage(telegramUserUpdate.Message);
+            }
         }
 
-        private async Task ProccessReceivedMessage(Message message)
+        private ConversationState? TryGetCurrentTelegramUserDemo(Update telegramUserUpdate)
         {
-            _logger.LogInformation($"Receive message type: {message.Type}");
-
-            var hasLastCmdInfo = _conversationCache.TryGetValue(message.Chat.Id.ToString(), out var lastCmdInfo);
-            if (hasLastCmdInfo)
+            var chatId = telegramUserUpdate.Message.From.Id.ToString();
+            if (_conversationCache.TryGetValue(chatId, out var telegramUserData))
             {
-                var lastCmd = lastCmdInfo as string;
-                if (lastCmd == "/dialog" && message.Type == MessageType.Document)
-                {
-                    await _dialogSystem.ProccessDocumentAsync(_botClient, message);
-                    return;
-                }
+                return telegramUserData;
             }
 
-            if (message.Type != MessageType.Text)
-            {
-                await Usage(_botClient, message);
-                return;
-            }
+            if (telegramUserUpdate.Message.Type != MessageType.Text)
+                return null;
+            
+            var parsedCmd = telegramUserUpdate.Message.Text.Split(' ').First();
+            var cachedDemoState = CacheDemoState(chatId, parsedCmd);
+            
+            return cachedDemoState;
+        }
 
-            var cmd = message.Text.Split(' ').First();
+        private ConversationState? CacheDemoState(string chatId, string parsedCmd)
+        {
+            var demo = _demosManager.GetByName(parsedCmd);
+            if (demo is null)
+            {
+                return null;
+            }
+            
+            var demoState = new ConversationState(demo);
             _conversationCache.Set(
-                message.Chat.Id.ToString(),
-                cmd
+                chatId,
+                demoState
             );
 
-            var action = message.Text.Split(' ').First() switch
-            {
-                "/dialog" => _dialogSystem.SendMenuAsync(_botClient, message),
-                _ => Usage(_botClient, message)
-            };
-            var sentMessage = await action;
-            _logger.LogInformation($"The message was sent with id: {sentMessage.MessageId}");
+            return demoState;
         }
 
         private Task UnknownUpdateHandlerAsync(Update update)
@@ -134,15 +132,24 @@ namespace Lagalike.Telegram.Services
             return Task.CompletedTask;
         }
 
-        private static async Task<Message> Usage(ITelegramBotClient bot, Message message)
+        private async Task Usage(Message message)
         {
-            const string Usage = "Usage:\n" +
-                                 "/dialog   - a demo of dialog system\n";
-
-            return await bot.SendTextMessageAsync(
+            await _botClient.SendTextMessageAsync(
                 message.Chat.Id,
-                Usage,
-                replyMarkup: new ReplyKeyboardRemove());
+                _availableDemosUsage);
         }
     }
+
+    public class TelegramConversationCache : BaseTelegramBotCache<ConversationState>
+    {
+        private const string BOT_CACHE_NAME = "botCache";
+
+        /// <inheritdoc />
+        public TelegramConversationCache(IMemoryCache telegramCache)
+            : base(telegramCache, BOT_CACHE_NAME)
+        {
+        }
+    }
+
+    public record ConversationState(IModeSystem SelectedDemoMode);
 }

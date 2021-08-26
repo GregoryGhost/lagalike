@@ -15,7 +15,7 @@ namespace Lagalike.Telegram.Modes
 
     using Lagalike.GraphML.Parser;
 
-    public class DialogSystem
+    public class HandleUpdateService : ITelegramUpdateHandler
     {
         private const string UPLOAD_TOOLTIP = "You can upload a GraphML file at any time.";
 
@@ -37,24 +37,32 @@ namespace Lagalike.Telegram.Modes
 
         private static readonly string TitleMode = $"Dialog system. {UPLOAD_TOOLTIP}";
 
+        private readonly ITelegramBotClient _botClient;
+
         private readonly Loader _dialogLoader;
 
         private readonly DialogSystemCache _dialogSystemCache;
 
-        public DialogSystem(Loader dialogLoader, DialogSystemCache dialogSystemCache)
+        public HandleUpdateService(ITelegramBotClient botClient, Loader dialogLoader, DialogSystemCache dialogSystemCache)
         {
+            _botClient = botClient;
             _dialogLoader = dialogLoader;
             _dialogSystemCache = dialogSystemCache;
         }
 
-        public async Task ProccessDocumentAsync(ITelegramBotClient botClient, Message message)
+        public Task HandleUpdateAsync(Update update)
         {
-            await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.UploadDocument);
+            throw new NotImplementedException();
+        }
 
-            var file = await botClient.GetFileAsync(message.Document.FileId);
+        public async Task ProccessDocumentAsync(Message message)
+        {
+            await _botClient.SendChatActionAsync(message.Chat.Id, ChatAction.UploadDocument);
+
+            var file = await _botClient.GetFileAsync(message.Document.FileId);
 
             await using var currentDocument = new MemoryStream();
-            await botClient.DownloadFileAsync(file.FilePath, currentDocument);
+            await _botClient.DownloadFileAsync(file.FilePath, currentDocument);
 
             var parsedScenesGraph = _dialogLoader.ParseFile(currentDocument);
 
@@ -63,7 +71,7 @@ namespace Lagalike.Telegram.Modes
                 _dialogSystemCache.Set(message.Chat.Id.ToString(), parsedScenesGraph.Value);
 
                 var wasSuccessProccessScenes = $"The document was successfully proccessed.\n {TitleMode}";
-                await botClient.SendTextMessageAsync(
+                await _botClient.SendTextMessageAsync(
                     message.Chat.Id,
                     wasSuccessProccessScenes,
                     replyMarkup: SceneWasUploadedInlineKeyboard);
@@ -71,23 +79,23 @@ namespace Lagalike.Telegram.Modes
             else
             {
                 Debug.WriteLine($"The document was failury proccessed. Error: {parsedScenesGraph.Error}");
-                await botClient.SendTextMessageAsync(message.Chat.Id, "The document was failury proccessed.");
+                await _botClient.SendTextMessageAsync(message.Chat.Id, "The document was failury proccessed.");
             }
         }
 
-        public async Task ProccessSceneDialog(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        public async Task ProccessSceneDialog(CallbackQuery callbackQuery)
         {
             var hasScenes = _dialogSystemCache.TryGetValue(callbackQuery.From.Id.ToString(), out var scenes);
             if (!hasScenes)
             {
-                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Have no the scene.");
+                await _botClient.SendTextMessageAsync(callbackQuery.From.Id, "Have no the scene.");
                 return;
             }
 
             var foundDescription = GetSceneDescription(scenes, callbackQuery.Data);
             if (foundDescription.HasNoValue)
             {
-                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "No found the scene.");
+                await _botClient.SendTextMessageAsync(callbackQuery.From.Id, "No found the scene.");
                 return;
             }
 
@@ -107,7 +115,7 @@ namespace Lagalike.Telegram.Modes
                     });
                 var choicesKeyboard = new InlineKeyboardMarkup(choices);
 
-                await botClient.EditMessageTextAsync(
+                await _botClient.EditMessageTextAsync(
                     callbackQuery.From.Id,
                     callbackQuery.Message.MessageId,
                     currentSceneDescription.Text,
@@ -115,17 +123,12 @@ namespace Lagalike.Telegram.Modes
             }
             else
             {
-                await botClient.EditMessageTextAsync(
+                await _botClient.EditMessageTextAsync(
                     callbackQuery.From.Id,
                     callbackQuery.Message.MessageId,
                     currentSceneDescription.Text,
                     replyMarkup: RestartDialogInlineKeyboard);
             }
-        }
-
-        public async Task<Message> SendMenuAsync(ITelegramBotClient botClient, Message message)
-        {
-            return await SendMenuButtonsAsync(botClient, message);
         }
 
         private static string FormatSceneId(string targetId)
@@ -150,18 +153,39 @@ namespace Lagalike.Telegram.Modes
                 $"Cannot match {nameof(callbackQueryData)}({callbackQueryData}) with existed cases.");
         }
 
-        private async Task<Message> SendMenuButtonsAsync(ITelegramBotClient botClient, Message message)
+        private async Task ProccessInlineKeyboardCallbackData(CallbackQuery callbackQuery)
         {
-            await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+            var msg = "It's nothing.";
+            if (callbackQuery.Data == "About")
+            {
+                const string AboutMsg = "A demo of a dialog system based on the GrahpML format file.\n" +
+                                        "The GraphML format files you can create in the https://www.yworks.com/products/yed.";
+                msg = AboutMsg;
+            }
+
+            if (callbackQuery.Data.Contains("dialog"))
+            {
+                await ProccessSceneDialog(callbackQuery);
+                return;
+            }
+
+            await _botClient.SendTextMessageAsync(
+                callbackQuery.Message.Chat.Id,
+                msg);
+        }
+
+        private async Task<Message> SendMenuButtonsAsync(Message message)
+        {
+            await _botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
             var wasStartedDialog = _dialogSystemCache.TryGetValue(message.From.Id.ToString(), out _);
             if (wasStartedDialog)
-                return await botClient.SendTextMessageAsync(
+                return await _botClient.SendTextMessageAsync(
                     message.Chat.Id,
                     TitleMode,
                     replyMarkup: SceneWasUploadedInlineKeyboard);
 
-            return await botClient.SendTextMessageAsync(
+            return await _botClient.SendTextMessageAsync(
                 message.Chat.Id,
                 TitleMode,
                 replyMarkup: EmptyFileInlineKeyboard);
