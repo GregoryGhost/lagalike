@@ -3,6 +3,8 @@ namespace Lagalike.Telegram.Services
     using System.Threading;
     using System.Threading.Tasks;
 
+    using Lagalike.Telegram.Shared.Services;
+
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
 

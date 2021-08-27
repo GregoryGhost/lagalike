@@ -1,5 +1,7 @@
 namespace Lagalike.Telegram.Services
 {
+    using Lagalike.Telegram.Shared;
+
     using Microsoft.Extensions.Options;
 
     public class TelegramWebhookConfiguration

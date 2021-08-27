@@ -1,4 +1,4 @@
-namespace Lagalike.Telegram
+namespace Lagalike.Telegram.Shared
 {
     using System.ComponentModel.DataAnnotations;
 

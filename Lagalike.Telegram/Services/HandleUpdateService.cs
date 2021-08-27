@@ -8,7 +8,8 @@ namespace Lagalike.Telegram.Services
     using global::Telegram.Bot.Types;
     using global::Telegram.Bot.Types.Enums;
 
-    using Lagalike.Telegram.Modes;
+    using Lagalike.Telegram.Shared.Contracts;
+    using Lagalike.Telegram.Shared.Services;
 
     using Microsoft.Extensions.Caching.Memory;
     using Microsoft.Extensions.Logging;
@@ -46,7 +47,7 @@ namespace Lagalike.Telegram.Services
                 _ => exception.ToString()
             };
 
-            _logger.LogInformation(errorMessage);
+            _logger.LogCritical(errorMessage);
 
             return Task.CompletedTask;
         }
@@ -65,7 +66,8 @@ namespace Lagalike.Telegram.Services
 
         private ConversationState? CacheDemoState(string chatId, string parsedCmd)
         {
-            var demo = _demosManager.GetByName(parsedCmd);
+            var parsedDemoName = parsedCmd.Replace("/", "");
+            var demo = _demosManager.GetByName(parsedDemoName);
             if (demo is null)
                 return null;
 
@@ -76,6 +78,17 @@ namespace Lagalike.Telegram.Services
             );
 
             return demoState;
+        }
+
+        private static string GetChatId(Update telegramUserUpdate)
+        {
+            if (telegramUserUpdate.Message is not null)
+                return telegramUserUpdate.Message.From.Id.ToString();
+            if (telegramUserUpdate.CallbackQuery is not null)
+                return telegramUserUpdate.CallbackQuery.From.Id.ToString();
+
+            throw new InvalidOperationException(
+                $"Cannot get a chat id for a update: {JsonConvert.SerializeObject(telegramUserUpdate)}");
         }
 
         private async Task GetHandlerAsync(Update update)
@@ -100,17 +113,17 @@ namespace Lagalike.Telegram.Services
             {
                 _logger.LogWarning($"Gotten an unknown demo mode for {JsonConvert.SerializeObject(telegramUserUpdate)}");
 
-                await Usage(telegramUserUpdate.Message);
+                await Usage(telegramUserUpdate);
             }
         }
 
         private ConversationState? TryGetCurrentTelegramUserDemo(Update telegramUserUpdate)
         {
-            var chatId = telegramUserUpdate.Message.From.Id.ToString();
+            var chatId = GetChatId(telegramUserUpdate);
             if (_conversationCache.TryGetValue(chatId, out var telegramUserData))
                 return telegramUserData;
 
-            if (telegramUserUpdate.Message.Type != MessageType.Text)
+            if (telegramUserUpdate.Message?.Type != MessageType.Text)
                 return null;
 
             var parsedCmd = telegramUserUpdate.Message.Text.Split(' ').First();
@@ -125,10 +138,12 @@ namespace Lagalike.Telegram.Services
             return Task.CompletedTask;
         }
 
-        private async Task Usage(Message message)
+        private async Task Usage(Update telegramUpdate)
         {
+            var chatId = GetChatId(telegramUpdate);
+
             await _botClient.SendTextMessageAsync(
-                message.Chat.Id,
+                chatId,
                 _availableDemosUsage);
         }
     }

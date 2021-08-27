@@ -2,7 +2,7 @@ namespace Lagalike.Telegram.Services
 {
     using System.Collections.Generic;
 
-    using Lagalike.Telegram.Modes;
+    using Lagalike.Telegram.Shared.Contracts;
 
     public class DemoRegistrator
     {

@@ -1,6 +1,8 @@
-namespace Lagalike.Telegram.Modes
+namespace Lagalike.Demo.DialogSystem.Services
 {
     using Lagalike.GraphML.Parser;
+    using Lagalike.Telegram.Modes;
+    using Lagalike.Telegram.Shared.Services;
 
     using Microsoft.Extensions.Caching.Memory;
 
@@ -11,7 +13,7 @@ namespace Lagalike.Telegram.Modes
     {
         /// <inheritdoc />
         public DialogSystemCache(IMemoryCache telegramCache)
-            : base(telegramCache, ModeSystem.MODE_NAME)
+            : base(telegramCache, DialogModeInfo.MODE_NAME)
         {
         }
     }

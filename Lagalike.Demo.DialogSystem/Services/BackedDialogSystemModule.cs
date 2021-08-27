@@ -1,5 +1,8 @@
-namespace Lagalike.Telegram.Modes
+namespace Lagalike.Demo.DialogSystem.Services
 {
+    using Lagalike.Telegram.Modes;
+    using Lagalike.Telegram.Shared.Contracts;
+
     public class BackedDialogSystemModule : IBackedModeSystem
     {
         public BackedDialogSystemModule()

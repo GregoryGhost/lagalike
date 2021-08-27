@@ -1,6 +1,8 @@
 namespace Lagalike.Telegram.Modes
 {
+    using Lagalike.Demo.DialogSystem.Services;
     using Lagalike.GraphML.Parser;
+    using Lagalike.Telegram.Shared.Contracts;
 
     using Microsoft.Extensions.DependencyInjection;
 
@@ -10,13 +12,8 @@ namespace Lagalike.Telegram.Modes
         /// <inheritdoc />
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<ModeSystem>();
-            services.AddSingleton<ITelegramUpdateHandler, HandleUpdateService>();
-            services.AddSingleton<DialogSystemCache>();
-
-            services.AddSingleton<FileReader>();
-            services.AddSingleton<Loader>();
-            services.AddSingleton<Parser>();
+            services.AddSingleton<IModeSystem, ModeSystem>().AddSingleton<DialogModeInfo>().AddSingleton<HandleUpdateService>().
+                     AddSingleton<DialogSystemCache>().AddSingleton<FileReader>().AddSingleton<Loader>().AddSingleton<Parser>();
         }
     }
 }

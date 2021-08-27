@@ -5,6 +5,8 @@ namespace Lagalike.Telegram.Services
 
     using global::Telegram.Bot;
 
+    using Lagalike.Telegram.Shared.Services;
+
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
 

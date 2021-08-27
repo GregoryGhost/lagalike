@@ -1,4 +1,4 @@
-namespace Lagalike.Telegram.Services
+namespace Lagalike.Telegram.Shared.Services
 {
     using System.Net.Http;
 

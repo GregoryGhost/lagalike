@@ -3,6 +3,8 @@ namespace Lagalike.Telegram
     using System;
 
     using Lagalike.Telegram.Services;
+    using Lagalike.Telegram.Shared;
+    using Lagalike.Telegram.Shared.Services;
 
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -28,13 +30,7 @@ namespace Lagalike.Telegram
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints => endpoints.MapControllers());
+            app.UseHttpsRedirection().UseRouting().UseAuthorization().UseEndpoints(endpoints => endpoints.MapControllers());
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -60,20 +56,14 @@ namespace Lagalike.Telegram
 
         private void ConfigureTelegramMode(IServiceCollection services)
         {
-            services.AddMemoryCache(options => options.ExpirationScanFrequency = TimeSpan.FromHours(1));
-            services.AddSingleton<TelegramConversationCache>();
-            services.AddSingleton<HandleUpdateService>();
+            services.AddDemoModules().AddMemoryCache(options => options.ExpirationScanFrequency = TimeSpan.FromHours(1)).
+                     AddSingleton<TelegramConversationCache>().AddSingleton<HandleUpdateService>().AddSingleton<DemosManager>().
+                     AddSingleton<DemoRegistrator>();
 
             if (_environment.IsDevelopment())
-            {
-                services.AddSingleton<PollingUpdateHandler>();
-                services.AddHostedService<PollingConfigurator>();
-            }
+                services.AddSingleton<PollingUpdateHandler>().AddHostedService<PollingConfigurator>();
             else
-            {
-                services.AddSingleton<TelegramWebhookConfiguration>();
-                services.AddHostedService<WebhookConfigurator>();
-            }
+                services.AddSingleton<TelegramWebhookConfiguration>().AddHostedService<WebhookConfigurator>();
         }
     }
 }

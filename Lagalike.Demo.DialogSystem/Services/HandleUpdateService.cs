@@ -1,4 +1,4 @@
-namespace Lagalike.Telegram.Modes
+namespace Lagalike.Demo.DialogSystem.Services
 {
     using System;
     using System.Diagnostics;
@@ -8,64 +8,78 @@ namespace Lagalike.Telegram.Modes
 
     using CSharpFunctionalExtensions;
 
-    using global::Telegram.Bot;
     using global::Telegram.Bot.Types;
     using global::Telegram.Bot.Types.Enums;
     using global::Telegram.Bot.Types.ReplyMarkups;
 
     using Lagalike.Demo.DialogSystem.Constants;
     using Lagalike.GraphML.Parser;
+    using Lagalike.Telegram.Shared.Contracts;
+    using Lagalike.Telegram.Shared.Services;
 
     public class HandleUpdateService : ITelegramUpdateHandler
     {
         private const string UPLOAD_TOOLTIP = "You can upload a GraphML file at any time.";
 
-        private static readonly InlineKeyboardButton AboutModeButton = GetInlineKeyboardButton(AvailableDemoCommands.About);
-
-        private static readonly InlineKeyboardMarkup EmptyFileInlineKeyboard = new(AboutModeButton);
-
-        private static readonly InlineKeyboardMarkup RestartDialogInlineKeyboard = new(
-            GetInlineKeyboardButton(AvailableDemoCommands.Restart)
-        );
-
-        private static readonly InlineKeyboardMarkup SceneWasUploadedInlineKeyboard = new(
-            new[]
-            {
-                GetInlineKeyboardButton(AvailableDemoCommands.Start),
-                AboutModeButton
-            }
-        );
-
-        private static readonly string TitleMode = $"Dialog system. {UPLOAD_TOOLTIP}";
-
-        private static readonly string WasSuccessfullyProccessedSceneDocument =
-            $"The document was successfully proccessed.\n {TitleMode}";
-
-        private readonly ITelegramBotClient _botClient;
+        private readonly ConfiguredTelegramBotClient _botClient;
 
         private readonly Loader _dialogLoader;
 
         private readonly DialogSystemCache _dialogSystemCache;
 
+        private readonly InlineKeyboardMarkup _emptyFileInlineKeyboard;
+
         private readonly ModeInfo _modeInfo;
 
-        public HandleUpdateService(ITelegramBotClient botClient, Loader dialogLoader, DialogSystemCache dialogSystemCache,
-            ModeSystem modeSystem)
+        private readonly InlineKeyboardMarkup _restartDialogInlineKeyboard;
+
+        private readonly InlineKeyboardMarkup _sceneWasUploadedInlineKeyboard;
+
+        private readonly string _titleMode;
+
+        private readonly string _wasSuccessfullyProccessedSceneDocument;
+
+        public HandleUpdateService(ConfiguredTelegramBotClient botClient, Loader dialogLoader,
+            DialogSystemCache dialogSystemCache,
+            DialogModeInfo modeInfo)
         {
             _botClient = botClient;
+            var aboutModeButton = GetInlineKeyboardButton(AvailableDemoCommands.About);
+            var restartButton = GetInlineKeyboardButton(AvailableDemoCommands.Restart);
+            var startButton = GetInlineKeyboardButton(AvailableDemoCommands.Start);
+            _titleMode = $"Dialog system. {UPLOAD_TOOLTIP}";
+            _wasSuccessfullyProccessedSceneDocument = $"The document was successfully proccessed.\n {_titleMode}";
+            _sceneWasUploadedInlineKeyboard = new InlineKeyboardMarkup(
+                new[]
+                {
+                    startButton,
+                    aboutModeButton
+                }
+            );
+            _emptyFileInlineKeyboard = new InlineKeyboardMarkup(aboutModeButton);
+            _restartDialogInlineKeyboard = new InlineKeyboardMarkup(
+                restartButton
+            );
             _dialogLoader = dialogLoader;
             _dialogSystemCache = dialogSystemCache;
-            _modeInfo = modeSystem.Info;
+            _modeInfo = modeInfo.ModeInfo;
         }
 
-        public Task HandleUpdateAsync(Update update)
+        public async Task HandleUpdateAsync(Update update)
         {
-            throw new NotImplementedException();
+            var action = update.Type switch
+            {
+                UpdateType.Message or UpdateType.EditedMessage => ProccessReceivedMessageAsync(update.Message),
+                UpdateType.CallbackQuery => ProccessInlineKeyboardCallbackDataAsync(update.CallbackQuery),
+                _ => Task.CompletedTask
+            };
+
+            await action;
         }
 
         private static string FormatSceneId(string targetId)
         {
-            return $"{ModeSystem.MODE_NAME} next scene id{targetId}";
+            return $"{DialogModeInfo.MODE_NAME} next scene id{targetId}";
         }
 
         private static InlineKeyboardButton GetInlineKeyboardButton(CommandInfo command)
@@ -104,7 +118,7 @@ namespace Lagalike.Telegram.Modes
         {
             var file = await _botClient.GetFileAsync(message.Document.FileId);
 
-            await using var currentDocument = new MemoryStream();
+            var currentDocument = new MemoryStream();
             await _botClient.DownloadFileAsync(file.FilePath, currentDocument);
 
             return currentDocument;
@@ -117,7 +131,7 @@ namespace Lagalike.Telegram.Modes
 
         private static bool IsCommandToProccessSceneDialog(CallbackQuery callbackQuery)
         {
-            return callbackQuery.Data.Contains(ModeSystem.MODE_NAME);
+            return callbackQuery.Data.Contains(DialogModeInfo.MODE_NAME);
         }
 
         private async Task ParseSceneFile(Message message, MemoryStream currentDocument)
@@ -130,8 +144,8 @@ namespace Lagalike.Telegram.Modes
 
                 await _botClient.SendTextMessageAsync(
                     message.Chat.Id,
-                    WasSuccessfullyProccessedSceneDocument,
-                    replyMarkup: SceneWasUploadedInlineKeyboard);
+                    _wasSuccessfullyProccessedSceneDocument,
+                    replyMarkup: _sceneWasUploadedInlineKeyboard);
             }
             else
             {
@@ -144,12 +158,12 @@ namespace Lagalike.Telegram.Modes
         {
             await _botClient.SendChatActionAsync(message.Chat.Id, ChatAction.UploadDocument);
 
-            await using var currentDocument = await GetSceneFileAsync(message);
+            var currentDocument = await GetSceneFileAsync(message);
 
             await ParseSceneFile(message, currentDocument);
         }
 
-        private async Task ProccessInlineKeyboardCallbackData(CallbackQuery callbackQuery)
+        private async Task ProccessInlineKeyboardCallbackDataAsync(CallbackQuery callbackQuery)
         {
             var msg = "It's nothing.";
             if (callbackQuery.Data == AvailableDemoCommands.About.CommandValue)
@@ -157,7 +171,7 @@ namespace Lagalike.Telegram.Modes
 
             if (IsCommandToProccessSceneDialog(callbackQuery))
             {
-                await ProccessSceneDialog(callbackQuery);
+                await ProccessSceneDialogAsync(callbackQuery);
                 return;
             }
 
@@ -166,7 +180,16 @@ namespace Lagalike.Telegram.Modes
                 msg);
         }
 
-        private async Task ProccessSceneDialog(CallbackQuery callbackQuery)
+        private async Task ProccessReceivedMessageAsync(Message message)
+        {
+            if (message.Type == MessageType.Document)
+                await ProccessDocumentAsync(message);
+
+            if (message.Type == MessageType.Text)
+                await SendMenuButtonsAsync(message);
+        }
+
+        private async Task ProccessSceneDialogAsync(CallbackQuery callbackQuery)
         {
             var hasScenes = _dialogSystemCache.TryGetValue(callbackQuery.From.Id.ToString(), out var scenes);
             if (!hasScenes)
@@ -210,7 +233,7 @@ namespace Lagalike.Telegram.Modes
                     callbackQuery.From.Id,
                     callbackQuery.Message.MessageId,
                     currentSceneDescription.Text,
-                    replyMarkup: RestartDialogInlineKeyboard);
+                    replyMarkup: _restartDialogInlineKeyboard);
             }
         }
 
@@ -222,13 +245,13 @@ namespace Lagalike.Telegram.Modes
             if (wasStartedDialog)
                 return await _botClient.SendTextMessageAsync(
                     message.Chat.Id,
-                    TitleMode,
-                    replyMarkup: SceneWasUploadedInlineKeyboard);
+                    _titleMode,
+                    replyMarkup: _sceneWasUploadedInlineKeyboard);
 
             return await _botClient.SendTextMessageAsync(
                 message.Chat.Id,
-                TitleMode,
-                replyMarkup: EmptyFileInlineKeyboard);
+                _titleMode,
+                replyMarkup: _emptyFileInlineKeyboard);
         }
     }
 }

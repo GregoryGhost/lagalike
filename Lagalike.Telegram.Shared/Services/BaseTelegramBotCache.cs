@@ -1,4 +1,4 @@
-namespace Lagalike.Telegram.Modes
+namespace Lagalike.Telegram.Shared.Services
 {
     using System;
 

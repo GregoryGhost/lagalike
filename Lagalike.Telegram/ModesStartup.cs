@@ -1,6 +1,7 @@
 namespace Lagalike.Telegram
 {
-    using Lagalike.Telegram.Modes;
+    using Lagalike.Demo.DialogSystem.Services;
+    using Lagalike.Telegram.Shared.Contracts;
 
     using Microsoft.Extensions.DependencyInjection;
 
