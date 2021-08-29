@@ -23,7 +23,6 @@ jobs:
           delay: 60
           healthcheck: ${{ secrets.HEROKU_HOST_ADDRESS }}
           rollbackonhealthcheckfailed: true
-          docker_heroku_process_type: "worker"
           docker_build_args: |
             TelegramBotConfiguration__BotToken
             TelegramBotConfiguration__HostAddress
