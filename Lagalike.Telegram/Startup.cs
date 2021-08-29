@@ -61,7 +61,8 @@ namespace Lagalike.Telegram
                     .AddSingleton<TelegramConversationCache>()
                     .AddSingleton<HandleUpdateService>()
                     .AddSingleton<DemosManager>()
-                    .AddSingleton<DemoRegistrator>();
+                    .AddSingleton<DemoRegistrator>()
+                    .AddHostedService<TelegramBotCommandsRegistrator>();
 
             if (_environment.IsDevelopment())
                 services.AddSingleton<PollingUpdateHandler>().AddHostedService<PollingConfigurator>();

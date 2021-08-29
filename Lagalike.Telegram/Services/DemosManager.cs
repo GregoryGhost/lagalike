@@ -1,11 +1,16 @@
 namespace Lagalike.Telegram.Services
 {
+    using System.Collections.Generic;
     using System.Linq;
+
+    using global::Telegram.Bot.Types;
 
     using Lagalike.Telegram.Shared.Contracts;
 
     public class DemosManager
     {
+        private readonly IEnumerable<BotCommand> _availableBotCommands;
+
         private readonly string _availableDemosUsage;
 
         private readonly DemoRegistrator _registrator;
@@ -14,6 +19,12 @@ namespace Lagalike.Telegram.Services
         {
             _registrator = registrator;
             _availableDemosUsage = FormatUsageAvailableDemoCommands();
+            _availableBotCommands = FormatBotCommands();
+        }
+
+        public IEnumerable<BotCommand> GetAvailableBotCommands()
+        {
+            return _availableBotCommands;
         }
 
         public IModeSystem? GetByName(string demoName)
@@ -24,6 +35,19 @@ namespace Lagalike.Telegram.Services
         public string GetDemosUsage()
         {
             return _availableDemosUsage;
+        }
+
+        private IEnumerable<BotCommand> FormatBotCommands()
+        {
+            var demosCommands = _registrator.GetRegistratedModules()
+                                            .Select(
+                                                module => new BotCommand
+                                                {
+                                                    Command = module.Info.Name,
+                                                    Description = module.Info.ShortDescription
+                                                });
+
+            return demosCommands;
         }
 
         private static string FormatDemoUsage(IModeSystem demoSystem)
