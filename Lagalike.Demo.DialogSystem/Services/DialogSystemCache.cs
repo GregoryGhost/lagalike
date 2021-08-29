@@ -1,7 +1,6 @@
 namespace Lagalike.Demo.DialogSystem.Services
 {
     using Lagalike.GraphML.Parser;
-    using Lagalike.Telegram.Modes;
     using Lagalike.Telegram.Shared.Services;
 
     using Microsoft.Extensions.Caching.Memory;

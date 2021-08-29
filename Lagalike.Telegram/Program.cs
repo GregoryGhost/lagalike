@@ -8,8 +8,7 @@ namespace Lagalike.Telegram
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
 #if DEBUG
-            return Host.CreateDefaultBuilder(args).
-                        ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
+            return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
 #else
             var port = Environment.GetEnvironmentVariable("PORT");
             if (port is null)

@@ -102,14 +102,15 @@
 
         private static string? FindNodeTextByAttributeKey(XContainer node, string attributeKey)
         {
-            var data = node.Elements().FirstOrDefault(
-                x =>
-                {
-                    var wasFoundKey = FindNodeAttributeByKey(x, ATTR_TAG_KEY) == attributeKey;
-                    var wasFoundTag = x.Name.LocalName == TAG_DATA;
+            var data = node.Elements()
+                           .FirstOrDefault(
+                               x =>
+                               {
+                                   var wasFoundKey = FindNodeAttributeByKey(x, ATTR_TAG_KEY) == attributeKey;
+                                   var wasFoundTag = x.Name.LocalName == TAG_DATA;
 
-                    return wasFoundTag && wasFoundKey;
-                });
+                                   return wasFoundTag && wasFoundKey;
+                               });
             var nodeList = data?.Elements().FirstOrDefault(x => x.Name.LocalName == TAG_LIST);
             var nodeLabel = nodeList?.Elements().FirstOrDefault(x => x.Name.LocalName == TAG_LABEL);
             var nodeLabelText = nodeLabel?.Elements().FirstOrDefault(x => x.Name.LocalName == TAG_LABEL_TEXT);
@@ -119,9 +120,10 @@
 
         private static Result<List<IGraphMlElement>, ParseError> ParseGraphMlFormat(XContainer xDoc)
         {
-            var parsedGraphMlElements = xDoc.Descendants().Aggregate(
-                new List<IGraphMlElement>(),
-                CollectGraphMlElements);
+            var parsedGraphMlElements = xDoc.Descendants()
+                                            .Aggregate(
+                                                new List<IGraphMlElement>(),
+                                                CollectGraphMlElements);
 
             return parsedGraphMlElements.Any()
                 ? parsedGraphMlElements
@@ -131,12 +133,14 @@
         private static Result<Graph, ParseError> PrepareGraph(List<IGraphMlElement> parsedGraphMlElements)
         {
             var (edges, vertixes) = parsedGraphMlElements.Partition(x => x is GraphMlEdge);
-            var vertexIndexes = vertixes.Cast<Vertex>().ToDictionary(
-                x => x.Id,
-                vertex => new CustomVertex(vertex.Text, vertex.Id));
-            var preparedGraph = edges.Cast<GraphMlEdge>().Aggregate(
-                new Graph(),
-                (graph, graphMlEdge) => CollectGraphElements(graphMlEdge, vertexIndexes, graph));
+            var vertexIndexes = vertixes.Cast<Vertex>()
+                                        .ToDictionary(
+                                            x => x.Id,
+                                            vertex => new CustomVertex(vertex.Text, vertex.Id));
+            var preparedGraph = edges.Cast<GraphMlEdge>()
+                                     .Aggregate(
+                                         new Graph(),
+                                         (graph, graphMlEdge) => CollectGraphElements(graphMlEdge, vertexIndexes, graph));
 
             return preparedGraph;
         }

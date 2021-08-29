@@ -12,8 +12,13 @@ namespace Lagalike.Telegram.Modes
         /// <inheritdoc />
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IModeSystem, ModeSystem>().AddSingleton<DialogModeInfo>().AddSingleton<HandleUpdateService>().
-                     AddSingleton<DialogSystemCache>().AddSingleton<FileReader>().AddSingleton<Loader>().AddSingleton<Parser>();
+            services.AddSingleton<IModeSystem, ModeSystem>()
+                    .AddSingleton<DialogModeInfo>()
+                    .AddSingleton<HandleUpdateService>()
+                    .AddSingleton<DialogSystemCache>()
+                    .AddSingleton<FileReader>()
+                    .AddSingleton<Loader>()
+                    .AddSingleton<Parser>();
         }
     }
 }

@@ -56,9 +56,12 @@ namespace Lagalike.Telegram
 
         private void ConfigureTelegramMode(IServiceCollection services)
         {
-            services.AddDemoModules().AddMemoryCache(options => options.ExpirationScanFrequency = TimeSpan.FromHours(1)).
-                     AddSingleton<TelegramConversationCache>().AddSingleton<HandleUpdateService>().AddSingleton<DemosManager>().
-                     AddSingleton<DemoRegistrator>();
+            services.AddDemoModules()
+                    .AddMemoryCache(options => options.ExpirationScanFrequency = TimeSpan.FromHours(1))
+                    .AddSingleton<TelegramConversationCache>()
+                    .AddSingleton<HandleUpdateService>()
+                    .AddSingleton<DemosManager>()
+                    .AddSingleton<DemoRegistrator>();
 
             if (_environment.IsDevelopment())
                 services.AddSingleton<PollingUpdateHandler>().AddHostedService<PollingConfigurator>();
