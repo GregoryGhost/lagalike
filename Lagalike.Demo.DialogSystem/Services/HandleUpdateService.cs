@@ -101,7 +101,7 @@ namespace Lagalike.Demo.DialogSystem.Services
         {
             var appPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             var exampleSceneFilePath = Path.Combine(appPath, EXAMPLE_SCENE_FILE_NAME);
-            return new InputOnlineFile(new FileStream(exampleSceneFilePath, FileMode.Open));
+            return new InputOnlineFile(new FileStream(exampleSceneFilePath, FileMode.Open), EXAMPLE_SCENE_FILE_NAME);
         }
 
         private static InlineKeyboardButton GetInlineKeyboardButton(CommandInfo command)
