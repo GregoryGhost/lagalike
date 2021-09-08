@@ -15,9 +15,9 @@ namespace Lagalike.Demo.DialogSystem.Constants
         /// <summary>
         ///     Trigger to proccess a next scene in a current user session.
         /// </summary>
-        public static readonly CommandInfo ProccessNextScene = new("Next scene", $"{DialogModeInfo.MODE_NAME} next scene");
+        public static readonly CommandInfo ProccessNextScene = new("Next scene", FormatProcessSceneCommandValue("next scene"));
 
-        private static readonly string StartCommandValue = $"{DialogModeInfo.MODE_NAME} start";
+        private static readonly string StartCommandValue = FormatProcessSceneCommandValue("start");
 
         /// <summary>
         ///     Trigger to restart proccessing a current scene .
@@ -28,5 +28,12 @@ namespace Lagalike.Demo.DialogSystem.Constants
         ///     Trigger to start proccessing a current dialog file.
         /// </summary>
         public static readonly CommandInfo Start = new("Start", StartCommandValue);
+        
+        public static readonly CommandInfo DownloadExampleSceneFile = new("Download an example scene file", "example scene file");
+
+        private static string FormatProcessSceneCommandValue(string command)
+        {
+            return $"{DialogModeInfo.MODE_NAME} ${command}";
+        }
     }
 }

@@ -10,6 +10,7 @@ namespace Lagalike.Demo.DialogSystem.Services
 
     using global::Telegram.Bot.Types;
     using global::Telegram.Bot.Types.Enums;
+    using global::Telegram.Bot.Types.InputFiles;
     using global::Telegram.Bot.Types.ReplyMarkups;
 
     using Lagalike.Demo.DialogSystem.Constants;
@@ -19,6 +20,9 @@ namespace Lagalike.Demo.DialogSystem.Services
 
     public class HandleUpdateService : ITelegramUpdateHandler
     {
+        private const string EXAMPLE_SCENE_FILE_URL =
+            "https://steamcdn-a.akamaihd.net/steam/apps/243470/capsule_616x353.jpg?t=1537808700";
+
         private const string UPLOAD_TOOLTIP = "You can upload a GraphML file at any time.";
 
         private readonly ConfiguredTelegramBotClient _botClient;
@@ -28,6 +32,8 @@ namespace Lagalike.Demo.DialogSystem.Services
         private readonly DialogSystemCache _dialogSystemCache;
 
         private readonly InlineKeyboardMarkup _emptyFileInlineKeyboard;
+
+        private readonly InputOnlineFile _exampleSceneFile;
 
         private readonly ModeInfo _modeInfo;
 
@@ -47,22 +53,30 @@ namespace Lagalike.Demo.DialogSystem.Services
             var aboutModeButton = GetInlineKeyboardButton(AvailableDemoCommands.About);
             var restartButton = GetInlineKeyboardButton(AvailableDemoCommands.Restart);
             var startButton = GetInlineKeyboardButton(AvailableDemoCommands.Start);
+            var downloadExampleSceneFileButton = GetInlineKeyboardButton(AvailableDemoCommands.DownloadExampleSceneFile);
             _titleMode = $"Dialog system. {UPLOAD_TOOLTIP}";
             _wasSuccessfullyProccessedSceneDocument = $"The document was successfully proccessed.\n {_titleMode}";
             _sceneWasUploadedInlineKeyboard = new InlineKeyboardMarkup(
                 new[]
                 {
                     startButton,
+                    downloadExampleSceneFileButton,
                     aboutModeButton
                 }
             );
-            _emptyFileInlineKeyboard = new InlineKeyboardMarkup(aboutModeButton);
+            _emptyFileInlineKeyboard = new InlineKeyboardMarkup(
+                new[]
+                {
+                    downloadExampleSceneFileButton,
+                    aboutModeButton
+                });
             _restartDialogInlineKeyboard = new InlineKeyboardMarkup(
                 restartButton
             );
             _dialogLoader = dialogLoader;
             _dialogSystemCache = dialogSystemCache;
             _modeInfo = modeInfo.ModeInfo;
+            _exampleSceneFile = new InputOnlineFile(new Uri(EXAMPLE_SCENE_FILE_URL));
         }
 
         public async Task HandleUpdateAsync(Update update)
@@ -175,6 +189,12 @@ namespace Lagalike.Demo.DialogSystem.Services
                 return;
             }
 
+            if (callbackQuery.Data == AvailableDemoCommands.DownloadExampleSceneFile.CommandValue)
+            {
+                await SendExampleSceneFileAsync(callbackQuery);
+                return;
+            }
+
             await _botClient.SendTextMessageAsync(
                 callbackQuery.Message.Chat.Id,
                 msg);
@@ -235,6 +255,16 @@ namespace Lagalike.Demo.DialogSystem.Services
                     currentSceneDescription.Text,
                     replyMarkup: _restartDialogInlineKeyboard);
             }
+        }
+
+        private async Task SendExampleSceneFileAsync(CallbackQuery callbackQuery)
+        {
+            var chatId = callbackQuery.From.Id.ToString();
+
+            await _botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
+
+            const string TooltipUseFile = "It's example scene file. You can send the file to the bot.";
+            await _botClient.SendDocumentAsync(chatId, _exampleSceneFile, caption: TooltipUseFile);
         }
 
         private async Task<Message> SendMenuButtonsAsync(Message message)
