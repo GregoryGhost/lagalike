@@ -59,16 +59,16 @@ namespace Lagalike.Demo.DialogSystem.Services
             _sceneWasUploadedInlineKeyboard = new InlineKeyboardMarkup(
                 new[]
                 {
-                    startButton,
-                    downloadExampleSceneFileButton,
-                    aboutModeButton
+                    new[] { startButton },
+                    new[] { downloadExampleSceneFileButton },
+                    new[] { aboutModeButton }
                 }
             );
             _emptyFileInlineKeyboard = new InlineKeyboardMarkup(
                 new[]
                 {
-                    downloadExampleSceneFileButton,
-                    aboutModeButton
+                    new[] { downloadExampleSceneFileButton },
+                    new[] { aboutModeButton }
                 });
             _restartDialogInlineKeyboard = new InlineKeyboardMarkup(
                 restartButton
