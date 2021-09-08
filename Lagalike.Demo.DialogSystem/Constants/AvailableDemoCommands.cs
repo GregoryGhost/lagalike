@@ -20,6 +20,11 @@ namespace Lagalike.Demo.DialogSystem.Constants
         private static readonly string StartCommandValue = FormatProcessSceneCommandValue("start");
 
         /// <summary>
+        ///     Trigger to download an example scene file to an user.
+        /// </summary>
+        public static readonly CommandInfo DownloadExampleSceneFile = new("Download an example scene file", "example scene file");
+
+        /// <summary>
         ///     Trigger to restart proccessing a current scene .
         /// </summary>
         public static readonly CommandInfo Restart = new("Restart", StartCommandValue);
@@ -28,12 +33,10 @@ namespace Lagalike.Demo.DialogSystem.Constants
         ///     Trigger to start proccessing a current dialog file.
         /// </summary>
         public static readonly CommandInfo Start = new("Start", StartCommandValue);
-        
-        public static readonly CommandInfo DownloadExampleSceneFile = new("Download an example scene file", "example scene file");
 
         private static string FormatProcessSceneCommandValue(string command)
         {
-            return $"{DialogModeInfo.MODE_NAME} ${command}";
+            return $"{DialogModeInfo.MODE_NAME} {command}";
         }
     }
 }
