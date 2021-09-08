@@ -4,6 +4,7 @@ namespace Lagalike.Demo.DialogSystem.Services
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
 
     using CSharpFunctionalExtensions;
@@ -20,8 +21,7 @@ namespace Lagalike.Demo.DialogSystem.Services
 
     public class HandleUpdateService : ITelegramUpdateHandler
     {
-        private const string EXAMPLE_SCENE_FILE_URL =
-            "https://steamcdn-a.akamaihd.net/steam/apps/243470/capsule_616x353.jpg?t=1537808700";
+        private const string EXAMPLE_SCENE_FILE_NAME = "scenes-choices.graphml";
 
         private const string UPLOAD_TOOLTIP = "You can upload a GraphML file at any time.";
 
@@ -76,7 +76,8 @@ namespace Lagalike.Demo.DialogSystem.Services
             _dialogLoader = dialogLoader;
             _dialogSystemCache = dialogSystemCache;
             _modeInfo = modeInfo.ModeInfo;
-            _exampleSceneFile = new InputOnlineFile(new Uri(EXAMPLE_SCENE_FILE_URL));
+
+            _exampleSceneFile = GetExampleSceneFile();
         }
 
         public async Task HandleUpdateAsync(Update update)
@@ -94,6 +95,13 @@ namespace Lagalike.Demo.DialogSystem.Services
         private static string FormatSceneId(string targetId)
         {
             return $"{DialogModeInfo.MODE_NAME} next scene id{targetId}";
+        }
+
+        private static InputOnlineFile GetExampleSceneFile()
+        {
+            var appPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            var exampleSceneFilePath = Path.Combine(appPath, EXAMPLE_SCENE_FILE_NAME);
+            return new InputOnlineFile(new FileStream(exampleSceneFilePath, FileMode.Open));
         }
 
         private static InlineKeyboardButton GetInlineKeyboardButton(CommandInfo command)
