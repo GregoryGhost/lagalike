@@ -5,11 +5,14 @@ namespace Lagalike.Telegram
 
     using Microsoft.Extensions.DependencyInjection;
 
+    using ThingsStore.Services;
+
     public static class ModesStartup
     {
         public static IServiceCollection AddDemoModules(this IServiceCollection services)
         {
-            services.AddModule<BackedDialogSystemModule>();
+            services.AddModule<BackedDialogSystemModule>()
+                    .AddModule<BackedThingsStoreSystemModule>();
 
             return services;
         }

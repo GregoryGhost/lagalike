@@ -16,6 +16,7 @@ namespace Lagalike.Demo.DialogSystem.Services
 
     using Lagalike.Demo.DialogSystem.Constants;
     using Lagalike.GraphML.Parser;
+    using Lagalike.Telegram.Shared;
     using Lagalike.Telegram.Shared.Contracts;
     using Lagalike.Telegram.Shared.Services;
 

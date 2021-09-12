@@ -18,6 +18,7 @@
         <ProjectReference Include="..\Lagalike.Demo.DialogSystem\Lagalike.Demo.DialogSystem.csproj" />
         <ProjectReference Include="..\Lagalike.GraphML.Parser\Lagalike.GraphML.Parser.csproj" />
         <ProjectReference Include="..\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj" />
+        <ProjectReference Include="..\ThingsStoreSystem\ThingsStoreSystem.csproj" />
     </ItemGroup>
 
 </Project>

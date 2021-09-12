@@ -1,6 +1,7 @@
 namespace Lagalike.Demo.DialogSystem.Constants
 {
     using Lagalike.Demo.DialogSystem.Services;
+    using Lagalike.Telegram.Shared;
 
     /// <summary>
     ///     Available commands of the dialog system demo.
