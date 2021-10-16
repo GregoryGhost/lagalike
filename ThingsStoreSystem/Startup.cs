@@ -4,6 +4,8 @@ namespace Lagalike.Telegram.Modes
 
     using Microsoft.Extensions.DependencyInjection;
 
+    using ThingsStore;
+    using ThingsStore.Pagination;
     using ThingsStore.Services;
 
     /// <inheritdoc />
@@ -15,7 +17,11 @@ namespace Lagalike.Telegram.Modes
             services.AddSingleton<IModeSystem, ModeSystem>()
                     .AddSingleton<ThingsStoreModeInfo>()
                     .AddSingleton<ThingsStoreHandleUpdateService>()
-                    .AddSingleton<ThingsStoreSystemCache>();
+                    .AddSingleton<ThingsStoreSystemCache>()
+                    .AddSingleton<PriceProducts, TelegramPriceProducts>()
+                    .AddSingleton<IBank, TelegramBank>()
+                    .AddSingleton<Paginator<Product>>()
+                    .AddSingleton<IThingsStore, ThingsStore>();
         }
     }
 }

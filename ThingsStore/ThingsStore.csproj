@@ -2,14 +2,13 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
-        <RootNamespace>ThingsStore</RootNamespace>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>Nullable</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj" />
-      <ProjectReference Include="..\ThingsStore\ThingsStore.csproj" />
+      <PackageReference Include="CSharpFunctionalExtensions" Version="2.20.0" />
+      <PackageReference Include="EnumWithValues" Version="1.0.8" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 namespace ThingsStore.Services
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -10,8 +11,11 @@ namespace ThingsStore.Services
         /// <summary>
         /// Bought items. Maximum count of bought items is the last 5 bought items.
         /// </summary>
-        public IList<BoughtItem> BoughtItems { get; init; }
+        public IList<BoughtOrder> BoughtItems { get; init; } = Array.Empty<BoughtOrder>();
 
-        public uint AvailableMoney { get; init; }
+        /// <summary>
+        /// Available money to buy some products.
+        /// </summary>
+        public uint Balance { get; init; }
     }
 }

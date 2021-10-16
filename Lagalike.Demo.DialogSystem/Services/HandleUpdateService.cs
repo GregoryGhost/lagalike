@@ -100,7 +100,11 @@ namespace Lagalike.Demo.DialogSystem.Services
 
         private static InputOnlineFile GetExampleSceneFile()
         {
-            var appPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            var appPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+            if (appPath == null)
+            {
+                throw new DirectoryNotFoundException("Not found application directory");
+            }
             var exampleSceneFilePath = Path.Combine(appPath, EXAMPLE_SCENE_FILE_NAME);
             return new InputOnlineFile(new FileStream(exampleSceneFilePath, FileMode.Open), EXAMPLE_SCENE_FILE_NAME);
         }

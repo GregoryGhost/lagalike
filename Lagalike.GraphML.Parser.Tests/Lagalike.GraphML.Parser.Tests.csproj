@@ -6,6 +6,8 @@
         <IsPackable>false</IsPackable>
 
         <Nullable>enable</Nullable>
+
+        <WarningsAsErrors>Nullable</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,16 +15,16 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="FluentAssertions" Version="5.10.3" />
-        <PackageReference Include="FluentAssertions.CSharpFunctionalExtensions" Version="1.0.2" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
-        <PackageReference Include="NUnit" Version="3.13.1" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-        <PackageReference Include="coverlet.collector" Version="3.0.2" />
+        <PackageReference Include="FluentAssertions" Version="5.10.3"/>
+        <PackageReference Include="FluentAssertions.CSharpFunctionalExtensions" Version="1.0.2"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4"/>
+        <PackageReference Include="NUnit" Version="3.13.1"/>
+        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0"/>
+        <PackageReference Include="coverlet.collector" Version="3.0.2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Lagalike.GraphML.Parser\Lagalike.GraphML.Parser.csproj" />
+        <ProjectReference Include="..\Lagalike.GraphML.Parser\Lagalike.GraphML.Parser.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

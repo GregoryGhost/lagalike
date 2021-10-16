@@ -1,8 +1,8 @@
 namespace ThingsStore.Constants
 {
-    using Lagalike.Telegram.Shared;
+    using global::ThingsStore.Services;
 
-    using ThingsStore.Services;
+    using Lagalike.Telegram.Shared;
 
     /// <summary>
     ///     Available commands of the dialog system demo.

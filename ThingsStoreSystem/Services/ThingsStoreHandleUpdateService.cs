@@ -2,6 +2,8 @@ namespace ThingsStore.Services
 {
     using System.Threading.Tasks;
 
+    using global::ThingsStore.Constants;
+
     using Lagalike.Telegram.Shared;
     using Lagalike.Telegram.Shared.Contracts;
     using Lagalike.Telegram.Shared.Services;
@@ -9,8 +11,6 @@ namespace ThingsStore.Services
     using Telegram.Bot.Types;
     using Telegram.Bot.Types.Enums;
     using Telegram.Bot.Types.ReplyMarkups;
-
-    using ThingsStore.Constants;
 
     public class ThingsStoreHandleUpdateService : ITelegramUpdateHandler
     {
@@ -76,8 +76,6 @@ namespace ThingsStore.Services
 
         private async Task ProccessInlineKeyboardCallbackDataAsync(CallbackQuery callbackQuery)
         {
-            
-            
             if (callbackQuery.Data == AvailableDemoCommands.GoShopping.CommandValue)
             {
                 await ProccessShoppingAsync(callbackQuery);
