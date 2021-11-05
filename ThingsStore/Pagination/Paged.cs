@@ -4,6 +4,7 @@ namespace ThingsStore.Pagination
     using System.Linq;
 
     public record Paged<TItem>
+        where TItem : class
     {
         public IEnumerable<TItem> Items { get; init; } = Enumerable.Empty<TItem>();
 
@@ -12,5 +13,11 @@ namespace ThingsStore.Pagination
         public uint Offset { get; init; }
 
         public uint Total { get; init; }
+
+        public Pagination NextPage => new ()
+        {
+            Limit = Limit,
+            Offset = Offset + 1
+        };
     }
 }

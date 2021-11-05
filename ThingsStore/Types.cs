@@ -1,14 +1,16 @@
 namespace ThingsStore
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
+
+    using CSharpFunctionalExtensions;
 
     using EnumWithValues;
 
     public record BoughtOrder
     {
-        public Product Product { get; init; } = null!;
+        public IReadOnlyCollection<Product> Products { get; init; } = Array.Empty<Product>();
     }
 
     [EnumWithValues("ParseErrors", true, true)]
@@ -31,9 +33,23 @@ namespace ThingsStore
     {
         public BuyerInformation Buyer { get; init; } = null!;
 
-        public OrderInformation OrderInfo { get; init; } = null!;
+        public IReadOnlyCollection<OrderInformation> OrderInfos { get; init; } = Array.Empty<OrderInformation>();
 
-        public float OrderPrice => OrderInfo.Amount * OrderInfo.Product.Cost;
+        public float OrderPrice => OrderInfos.Sum(x => x.Amount * x.Product.Cost);
+    }
+
+    public record OrderInfo
+    {
+        public float OrderPrice => OrderProducts.Values.Sum(x => x.Amount * x.Product.Cost);
+
+        /// <summary>
+        ///     Key - product id, value -
+        /// </summary>
+        public IDictionary<long, ProductInfo> OrderProducts { get; init; } = null!;
+    }
+
+    public record ProductInfo : OrderInformation
+    {
     }
 
     public record OrderInformation
@@ -45,7 +61,7 @@ namespace ThingsStore
 
     public record BuyerInformation
     {
-        public string BuyerId { get; init; } = null!;
+        public long BuyerId { get; init; }
     }
 
     public record Customer
@@ -64,21 +80,54 @@ namespace ThingsStore
 
         public string Description { get; init; } = string.Empty;
 
-        public string Id { get; init; } = string.Empty;
+        public long Id { get; init; }
 
         public string Label { get; init; } = string.Empty;
     }
 
-    public class Bank : ConcurrentDictionary<string, Customer>, IBank
-
+    /// <summary>
+    ///     An bank contract - key (Customer Id), value (Customer info).
+    /// </summary>
+    public interface IBank : IDictionary<long, Customer>
     {
-        public Bank(IDictionary<string, Customer> customers)
-            : base(customers)
-        {
-        }
     }
 
-    public interface IBank : IDictionary<string, Customer>
+    public record BasketOrderHistories
     {
+        public IDictionary<long, BasketOrder> Orders { get; init; } = null!;
+    }
+
+    public record BasketOrder
+    {
+        public IReadOnlyCollection<OrderInformation> Items { get; init; } = Array.Empty<OrderInformation>();
+    }
+
+    public record OrderOverView
+    {
+        public long BoughtItemsAmount { get; init; }
+        
+        public long OrderId { get; init; }
+
+        public float SpentMoney { get; init; }
+    }
+
+    /// <summary>
+    ///     An basket contract - key (Customer Id), value (Orders info).
+    /// </summary>
+    public interface IBasket : IDictionary<long, BasketOrderHistories>
+    {
+        Maybe<BasketOrder> GetOrder(long customerId, long orderId);
+    }
+
+    /// <summary>
+    ///     An basket contract - key (Customer Id), value (Order info).
+    /// </summary>
+    public interface ITempBasket : IDictionary<long, OrderInfo>
+    {
+        void AddProductToOrder(long customerId, Product product);
+
+        Maybe<OrderInfo> GetOrderProducts(long customerId);
+
+        void RemoveProductFromOrder(long customerId, long productId);
     }
 }

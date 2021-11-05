@@ -102,9 +102,8 @@ namespace Lagalike.Demo.DialogSystem.Services
         {
             var appPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
             if (appPath == null)
-            {
                 throw new DirectoryNotFoundException("Not found application directory");
-            }
+
             var exampleSceneFilePath = Path.Combine(appPath, EXAMPLE_SCENE_FILE_NAME);
             return new InputOnlineFile(new FileStream(exampleSceneFilePath, FileMode.Open), EXAMPLE_SCENE_FILE_NAME);
         }

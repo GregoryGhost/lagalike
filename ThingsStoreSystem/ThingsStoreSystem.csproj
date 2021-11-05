@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj" />
-      <ProjectReference Include="..\ThingsStore\ThingsStore.csproj" />
+        <ProjectReference Include="..\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj" />
+        <ProjectReference Include="..\ThingsStore\ThingsStore.csproj" />
     </ItemGroup>
 
 </Project>

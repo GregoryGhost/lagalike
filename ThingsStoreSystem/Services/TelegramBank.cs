@@ -8,7 +8,7 @@ namespace Lagalike.Telegram.Modes
     /// <inheritdoc />
     public class TelegramBank : Bank
     {
-        private static readonly IDictionary<string, Customer> Customers = new ConcurrentDictionary<string, Customer>();
+        private static readonly IDictionary<long, Customer> Customers = new ConcurrentDictionary<long, Customer>();
 
         /// <inheritdoc />
         public TelegramBank()
