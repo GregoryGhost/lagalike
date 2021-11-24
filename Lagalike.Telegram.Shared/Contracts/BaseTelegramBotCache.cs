@@ -1,6 +1,8 @@
-namespace Lagalike.Telegram.Shared.Services
+namespace Lagalike.Telegram.Shared.Contracts
 {
     using System;
+
+    using global::PatrickStar.MVU;
 
     using Microsoft.Extensions.Caching.Memory;
 
@@ -8,7 +10,7 @@ namespace Lagalike.Telegram.Shared.Services
     ///     A basic implementation of cache for demos of a telegram bot.
     /// </summary>
     /// <typeparam name="TItem">A type of a saved item.</typeparam>
-    public abstract class BaseTelegramBotCache<TItem> : IDisposable
+    public abstract class BaseTelegramBotCache<TItem> : IDisposable, IModelCache<TItem>
     {
         private readonly string _demoCacheName;
 
@@ -40,21 +42,13 @@ namespace Lagalike.Telegram.Shared.Services
             _telegramCache.Remove(FormatCacheKey(chatId));
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="chatId">A chat id.</param>
-        /// <param name="value">A saved value.</param>
+        /// <inheritdoc />
         public void Set(string chatId, TItem value)
         {
             _telegramCache.Set(FormatCacheKey(chatId), value);
         }
 
-        /// <summary>
-        ///     Try to get a value from cache.
-        /// </summary>
-        /// <param name="chatId">A chat id.</param>
-        /// <param name="value">A saved object value.</param>
-        /// <returns>Returns "true" if a object value found else "false".</returns>
+        /// <inheritdoc />
         public bool TryGetValue(string chatId, out TItem value)
         {
             return _telegramCache.TryGetValue(FormatCacheKey(chatId), out value);
