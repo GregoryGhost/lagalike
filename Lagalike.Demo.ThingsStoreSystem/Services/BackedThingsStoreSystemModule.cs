@@ -1,6 +1,5 @@
 namespace ThingsStore.Services
 {
-    using Lagalike.Telegram.Modes;
     using Lagalike.Telegram.Shared.Contracts;
 
     public class BackedThingsStoreSystemModule : IBackedModeSystem

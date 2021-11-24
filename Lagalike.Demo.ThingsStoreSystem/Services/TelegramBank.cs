@@ -1,9 +1,7 @@
-namespace Lagalike.Telegram.Modes
+namespace ThingsStore.Services
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-
-    using ThingsStore;
 
     /// <inheritdoc />
     public class TelegramBank : Bank

@@ -1,11 +1,10 @@
-namespace Lagalike.Telegram.Modes
+namespace ThingsStore
 {
+    using global::ThingsStore.Services;
+
     using Lagalike.Telegram.Shared.Contracts;
 
     using Microsoft.Extensions.DependencyInjection;
-
-    using ThingsStore;
-    using ThingsStore.Services;
 
     /// <inheritdoc />
     public class Startup : IStartup

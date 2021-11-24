@@ -1,6 +1,8 @@
 namespace Lagalike.Telegram
 {
     using Lagalike.Demo.DialogSystem.Services;
+    using Lagalike.Demo.TestPatrickStar.MVU.Services;
+    using Lagalike.Demo.TestPatrickStar.MVU.Services.ModuleSettings;
     using Lagalike.Telegram.Shared.Contracts;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +14,8 @@ namespace Lagalike.Telegram
         public static IServiceCollection AddDemoModules(this IServiceCollection services)
         {
             services.AddModule<BackedDialogSystemModule>()
-                    .AddModule<BackedThingsStoreSystemModule>();
+                    .AddModule<BackedThingsStoreSystemModule>()
+                    .AddModule<BackedTestPatrickStarSystemModule>();
 
             return services;
         }

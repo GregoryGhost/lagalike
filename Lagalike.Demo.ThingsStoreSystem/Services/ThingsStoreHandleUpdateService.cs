@@ -14,6 +14,8 @@ namespace ThingsStore.Services
     using Lagalike.Telegram.Shared.Contracts;
     using Lagalike.Telegram.Shared.Services;
 
+    using Microsoft.Extensions.Options;
+
     using Newtonsoft.Json;
 
     using Telegram.Bot.Types;

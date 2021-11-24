@@ -1,8 +1,6 @@
-namespace Lagalike.Telegram.Modes
+namespace ThingsStore.Services
 {
     using System.Linq;
-
-    using ThingsStore;
 
     /// <inheritdoc />
     public record TelegramPriceProducts : PriceProducts
