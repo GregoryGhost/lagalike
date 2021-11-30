@@ -1,5 +1,7 @@
 namespace PatrickStar.MVU
 {
+    using System.Diagnostics.CodeAnalysis;
+
     public interface IModelCache<TItem>
     {
         /// <summary>
@@ -15,6 +17,6 @@ namespace PatrickStar.MVU
         /// <param name="chatId">A chat id.</param>
         /// <param name="value">A saved object value.</param>
         /// <returns>Returns "true" if a object value found else "false".</returns>
-        bool TryGetValue(string chatId, out TItem value);
+        bool TryGetValue(string chatId, [MaybeNullWhen(false)]out TItem value);
     }
 }

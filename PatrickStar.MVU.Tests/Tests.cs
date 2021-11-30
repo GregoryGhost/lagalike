@@ -20,7 +20,8 @@ namespace PatrickStar.MVU.Tests
             {
                 Test = true
             };
-            Assert.AreEqual(dataFlowManager.Model, expectedModel);
+            dataFlowManager.Model.TryGetValue(TEST_CHAT_ID, out var actualModel);
+            Assert.AreEqual(actualModel, expectedModel);
         }
 
         [Test]
@@ -37,12 +38,9 @@ namespace PatrickStar.MVU.Tests
                 "TODO: реализовать тест по проверки многопоточного изменения Model в dataFlowManager");
         }
 
-        private static IDataFlowManager<IModel, MainViewMapper, TestUpdate, CmdType> GetDataFlowManager()
+        private static IDataFlowManager<Model1, MainViewMapper, TestUpdate, CmdType> GetDataFlowManager()
         {
-            var initialModel = new Model1
-            {
-                Test = false
-            };
+            var initialModel = new TestModelCache();
             var proccessor = new PostProccessor();
             var updater = new TestUpdater();
             var viewManager = new MainViewMapper();
@@ -59,10 +57,13 @@ namespace PatrickStar.MVU.Tests
             };
             var testUpdate = new TestUpdate
             {
-                Data = JsonConvert.SerializeObject(cmd)
+                Data = JsonConvert.SerializeObject(cmd),
+                ChatId = TEST_CHAT_ID
             };
 
             return testUpdate;
         }
+
+        private const string TEST_CHAT_ID = "testChatId";
     }
 }

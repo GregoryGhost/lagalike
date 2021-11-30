@@ -1,7 +1,9 @@
 namespace PatrickStar.MVU.Tests
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
 
     using Newtonsoft.Json;
@@ -22,21 +24,45 @@ namespace PatrickStar.MVU.Tests
         public override CmdType Type => CmdType.Cmd2;
     }
 
-    public class DataFlowManager : IDataFlowManager<IModel, MainViewMapper, TestUpdate, CmdType>
+    public class TestModelCache : IModelCache<Model1>
     {
-        public DataFlowManager(IModel model, IPostProccessor<CmdType> postProccessor, IUpdater<CmdType> updater, MainViewMapper viewMapper)
+        private readonly IDictionary<string, Model1> _cache;
+        public TestModelCache()
+        {
+            _cache = new ConcurrentDictionary<string, Model1>();
+        }
+        /// <inheritdoc />
+        public void Set(string chatId, Model1 value)
+        {
+            _cache.Add(chatId, value);
+        }
+
+        /// <inheritdoc />
+        public bool TryGetValue(string chatId, [MaybeNullWhen(false)]out Model1 value)
+        {
+            return _cache.TryGetValue(chatId, out value);
+        }
+    }
+
+    public class DataFlowManager : IDataFlowManager<Model1, MainViewMapper, TestUpdate, CmdType>
+    {
+        public DataFlowManager(IModelCache<Model1> model, IPostProccessor<CmdType, TestUpdate> postProccessor, IUpdater<CmdType> updater, MainViewMapper viewMapper)
         {
             Model = model;
             PostProccessor = postProccessor;
             Updater = updater;
             ViewMapper = viewMapper;
+            InitialModel = new Model1
+            {
+                Test = false
+            };
         }
 
         /// <inheritdoc />
-        public IModel Model { get; set; }
+        public IModelCache<Model1> Model { get; init; }
 
         /// <inheritdoc />
-        public IPostProccessor<CmdType> PostProccessor { get; init; }
+        public IPostProccessor<CmdType, TestUpdate> PostProccessor { get; init; }
 
         /// <inheritdoc />
         public IUpdater<CmdType> Updater { get; init; }
@@ -45,13 +71,16 @@ namespace PatrickStar.MVU.Tests
         public MainViewMapper ViewMapper { get; init; }
 
         /// <inheritdoc />
+        public Model1 InitialModel { get; init; }
+
+        /// <inheritdoc />
         public ICommand<CmdType> GetInputCommand(TestUpdate update)
         {
             var dictCommands = new Dictionary<CmdType, ICommand<CmdType>>
             {
                 { CmdType.Cmd1, new TestCmd() },
                 { CmdType.Cmd2, new TestCmd2() }
-            };      //TODO: скорее всего можно сделать через Type и через рефлексию сериализовать в нужный тип, возвращая при этом по ICommand интерфейсу
+            };
             var commandType = JsonConvert.DeserializeObject<BaseCommand<CmdType>>(update.Data);
             if (commandType?.Type == null)
             {
@@ -66,10 +95,10 @@ namespace PatrickStar.MVU.Tests
         }
     }
 
-    public class PostProccessor : IPostProccessor<CmdType>
+    public class PostProccessor : IPostProccessor<CmdType, TestUpdate>
     {
         /// <inheritdoc />
-        public async Task ProccessAsync(IView<CmdType> view, Tinfo info)
+        public async Task ProccessAsync(IView<CmdType> view, TestUpdate info)
         {
             await Task.CompletedTask;
         }
@@ -101,9 +130,12 @@ namespace PatrickStar.MVU.Tests
         }
     }
 
-    public record TestUpdate
+    public record TestUpdate : IUpdate
     {
         public string Data { get; init; } = null!;
+
+        /// <inheritdoc />
+        public string ChatId { get; init; } = null!;
     }
 
     public enum ModelType
@@ -138,6 +170,12 @@ namespace PatrickStar.MVU.Tests
                    .Row()
                    .Button("test2", (ICommand<TCommandType>)new TestCmd2())
                    .Build("test msg");
+        }
+
+        /// <inheritdoc />
+        public override IView<TCommandType> Update(Menu<TCommandType> sourceMenu)
+        {
+            throw new NotImplementedException();
         }
     }
 
