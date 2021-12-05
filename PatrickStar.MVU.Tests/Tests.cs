@@ -1,6 +1,6 @@
 namespace PatrickStar.MVU.Tests
 {
-    using System;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Newtonsoft.Json;
@@ -9,6 +9,9 @@ namespace PatrickStar.MVU.Tests
 
     public class Tests
     {
+        private const string TEST_CHAT_ID = "testChatId";        
+        private const string TEST_CHAT_ID2 = "testChatId2";
+
         [Test]
         public async Task TestCommandProccessAsync()
         {
@@ -25,6 +28,32 @@ namespace PatrickStar.MVU.Tests
         }
 
         [Test]
+        public async Task TestMultithreadChangingEachModelAsync()
+        {
+            var dataFlowManager = GetDataFlowManager();
+            var update1 = GetTestUpdate();
+            var update2 = GetTestUpdateOutputCmd();
+            var updates = new[] { update1, update2 }.Select(dataFlowManager.ProccessMessageAsync);
+            await Task.WhenAll(updates);
+            
+            var expectedModel1 = new Model1
+            {
+                Test = true,
+                GotTestCmd2Repeated = false
+            };            
+            var expectedModel2 = new Model1
+            {
+                Test = true,
+                GotTestCmd2Repeated = true
+            };
+            dataFlowManager.Model.TryGetValue(TEST_CHAT_ID, out var actualModel1);
+            Assert.AreEqual(actualModel1, expectedModel1);
+            
+            dataFlowManager.Model.TryGetValue(TEST_CHAT_ID2, out var actualModel2);
+            Assert.AreEqual(actualModel2, expectedModel2);
+        }
+
+        [Test]
         public async Task TestOutputCommandProccessingAsync()
         {
             var dataFlowManager = GetDataFlowManager();
@@ -36,15 +65,8 @@ namespace PatrickStar.MVU.Tests
                 Test = true,
                 GotTestCmd2Repeated = true
             };
-            dataFlowManager.Model.TryGetValue(TEST_CHAT_ID, out var actualModel);
+            dataFlowManager.Model.TryGetValue(TEST_CHAT_ID2, out var actualModel);
             Assert.AreEqual(actualModel, expectedModel);
-        }
-        
-        [Test]
-        public async Task TestMultithreadChangingModelAsync()
-        {
-            throw new NotImplementedException(
-                "TODO: реализовать тест по проверки многопоточного изменения Model в dataFlowManager");
         }
 
         private static IDataFlowManager<Model1, MainViewMapper, TestUpdate, CmdType> GetDataFlowManager()
@@ -72,7 +94,7 @@ namespace PatrickStar.MVU.Tests
 
             return testUpdate;
         }
-        
+
         private static TestUpdate GetTestUpdateOutputCmd()
         {
             var cmd = new TestCmd2Repeated
@@ -82,12 +104,10 @@ namespace PatrickStar.MVU.Tests
             var testUpdate = new TestUpdate
             {
                 Data = JsonConvert.SerializeObject(cmd),
-                ChatId = TEST_CHAT_ID
+                ChatId = TEST_CHAT_ID2
             };
 
             return testUpdate;
         }
-
-        private const string TEST_CHAT_ID = "testChatId";
     }
 }
