@@ -16,12 +16,20 @@ namespace PatrickStar.MVU.Tests
         public override CmdType Type => CmdType.Cmd1;
     }
     
-    public record TestCmd2 : BaseCommand<CmdType>
+    public record TestCmd2Repeated : BaseCommand<CmdType>
     {
         public string TestProp { get; init; } = null!;
 
         /// <inheritdoc />
         public override CmdType Type => CmdType.Cmd2;
+    }
+    
+    public record TestCmd3Repeated : BaseCommand<CmdType>
+    {
+        public string TestProp { get; init; } = null!;
+
+        /// <inheritdoc />
+        public override CmdType Type => CmdType.Cmd3Repeated;
     }
 
     public class TestModelCache : IModelCache<Model1>
@@ -34,7 +42,14 @@ namespace PatrickStar.MVU.Tests
         /// <inheritdoc />
         public void Set(string chatId, Model1 value)
         {
-            _cache.Add(chatId, value);
+            if (_cache.ContainsKey(chatId))
+            {
+                _cache[chatId] = value;
+            }
+            else
+            {
+                _cache.Add(chatId, value);
+            }
         }
 
         /// <inheritdoc />
@@ -79,7 +94,7 @@ namespace PatrickStar.MVU.Tests
             var dictCommands = new Dictionary<CmdType, ICommand<CmdType>>
             {
                 { CmdType.Cmd1, new TestCmd() },
-                { CmdType.Cmd2, new TestCmd2() }
+                { CmdType.Cmd2, new TestCmd2Repeated() }
             };
             var commandType = JsonConvert.DeserializeObject<BaseCommand<CmdType>>(update.Data);
             if (commandType?.Type == null)
@@ -118,12 +133,14 @@ namespace PatrickStar.MVU.Tests
             var outputCmd = command.Type switch
             {
                 CmdType.Cmd1 => null,
-                CmdType.Cmd2 => new TestCmd(),
+                CmdType.Cmd2 => new TestCmd3Repeated(),
+                CmdType.Cmd3Repeated => null,
                 _ => throw new ArgumentOutOfRangeException($"Unknown {nameof(command)}: {command}") 
             };
             var updatedModel = castedModel with
             {
-               Test = true
+               Test = true,
+               GotTestCmd2Repeated = command.Type is CmdType.Cmd3Repeated
             };
 
             return (outputCmd, updatedModel);
@@ -149,12 +166,16 @@ namespace PatrickStar.MVU.Tests
     {
         Cmd1,
 
-        Cmd2
+        Cmd2,
+        
+        Cmd3Repeated
     }
 
     public record Model1 : IModel
     {
         public bool Test { get; init; }
+        
+        public bool GotTestCmd2Repeated { get; init; }
         
         public virtual Enum Type => ModelType.Model1;
     }
@@ -168,7 +189,7 @@ namespace PatrickStar.MVU.Tests
                    .Row()
                    .Button("test", (ICommand<TCommandType>)new TestCmd())
                    .Row()
-                   .Button("test2", (ICommand<TCommandType>)new TestCmd2())
+                   .Button("test2", (ICommand<TCommandType>)new TestCmd2Repeated())
                    .Build("test msg");
         }
 

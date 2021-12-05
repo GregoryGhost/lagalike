@@ -27,8 +27,17 @@ namespace PatrickStar.MVU.Tests
         [Test]
         public async Task TestOutputCommandProccessingAsync()
         {
-            throw new NotImplementedException(
-                "TODO: реализовать обработку outputCommand в ProccessMessageAsync у dataFlowManager");
+            var dataFlowManager = GetDataFlowManager();
+            var update = GetTestUpdateOutputCmd();
+            await dataFlowManager.ProccessMessageAsync(update);
+
+            var expectedModel = new Model1
+            {
+                Test = true,
+                GotTestCmd2Repeated = true
+            };
+            dataFlowManager.Model.TryGetValue(TEST_CHAT_ID, out var actualModel);
+            Assert.AreEqual(actualModel, expectedModel);
         }
         
         [Test]
@@ -52,6 +61,21 @@ namespace PatrickStar.MVU.Tests
         private static TestUpdate GetTestUpdate()
         {
             var cmd = new TestCmd
+            {
+                TestProp = "kekw"
+            };
+            var testUpdate = new TestUpdate
+            {
+                Data = JsonConvert.SerializeObject(cmd),
+                ChatId = TEST_CHAT_ID
+            };
+
+            return testUpdate;
+        }
+        
+        private static TestUpdate GetTestUpdateOutputCmd()
+        {
+            var cmd = new TestCmd2Repeated
             {
                 TestProp = "kekw"
             };
