@@ -8,6 +8,7 @@ namespace Lagalike.Telegram.Shared.Contracts.PatrickStar.MVU
     using global::Telegram.Bot.Types;
     using global::Telegram.Bot.Types.Enums;
 
+    /// <inheritdoc />
     public abstract class BaseMvuUpdateHandlerService<TModel, TViewMapper, TCommandType> : ITelegramUpdateHandler
         where TModel : IModel
         where TViewMapper : IViewMapper<TCommandType>
@@ -15,6 +16,10 @@ namespace Lagalike.Telegram.Shared.Contracts.PatrickStar.MVU
     {
         private readonly IDataFlowManager<TModel, TViewMapper, TelegramUpdate, TCommandType> _dataFlowManager;
 
+        /// <summary>
+        /// Initialize dependencies.
+        /// </summary>
+        /// <param name="dataFlowManager">A manager wich controls Telegram data flow.</param>
         protected BaseMvuUpdateHandlerService(IDataFlowManager<TModel, TViewMapper, TelegramUpdate, TCommandType>  dataFlowManager)
         {
             _dataFlowManager = dataFlowManager;

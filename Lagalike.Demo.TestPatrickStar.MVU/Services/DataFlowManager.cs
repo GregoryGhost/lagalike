@@ -13,12 +13,23 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services
 
     using PatrickStar.MVU;
 
+    /// <summary>
+    /// The demo data flow manager which controls Telegram and 
+    /// </summary>
     public class DataFlowManager : IDataFlowManager<Model, ViewMapper, TelegramUpdate, CommandTypes>
     {
         private readonly CommandsFactory _commandsFactory;
 
         private readonly IReadOnlyDictionary<CommandTypes, ICommand<CommandTypes>> _commands;
 
+        /// <summary>
+        /// Initialize dependencies.
+        /// </summary>
+        /// <param name="model">The demo model.</param>
+        /// <param name="postProccessor">The Telegram update post processor.</param>
+        /// <param name="updater">The Telegram update handler.</param>
+        /// <param name="viewMapper">The view mapper.</param>
+        /// <param name="commandsFactory">The demo commands factory.</param>
         public DataFlowManager(TestPatrickStarCache model, TestPatrickPostProccessor postProccessor, TestPatrickUpdater updater,
             ViewMapper viewMapper, CommandsFactory commandsFactory)
         {
@@ -43,7 +54,7 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services
             var commandType = update.RequestType switch
             {
                 RequestTypes.CallbackData => JsonConvert.DeserializeObject<BaseCommand<CommandTypes>>(update.Update.CallbackQuery.Data),
-                RequestTypes.Message or RequestTypes.EditedMessage => _commandsFactory.GetMenuCommand(),
+                RequestTypes.Message or RequestTypes.EditedMessage => _commandsFactory.MenuCommand,
                 _ => throw new ArgumentOutOfRangeException("Unknown request type")
             };
             if (commandType?.Type == null)

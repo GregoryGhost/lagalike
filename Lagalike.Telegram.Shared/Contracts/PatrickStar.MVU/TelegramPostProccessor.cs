@@ -12,11 +12,19 @@ namespace Lagalike.Telegram.Shared.Contracts.PatrickStar.MVU
 
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// Telegram update processor.
+    /// </summary>
+    /// <typeparam name="TCmdType">A command type, which contains in views of Patrick Star MVU.</typeparam>
     public abstract class TelegramPostProccessor<TCmdType> : IPostProccessor<TCmdType, TelegramUpdate>
         where TCmdType : Enum
     {
         private readonly ConfiguredTelegramBotClient _client;
 
+        /// <summary>
+        /// Initialize dependencies.
+        /// </summary>
+        /// <param name="client">Telegram client.</param>
         protected TelegramPostProccessor(ConfiguredTelegramBotClient client)
         {
             _client = client;

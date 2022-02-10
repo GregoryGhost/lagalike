@@ -8,6 +8,7 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services
 
     using PatrickStar.MVU;
 
+    /// <inheritdoc />
     public class TestPatrickUpdater : IUpdater<CommandTypes>
     {
         /// <inheritdoc />

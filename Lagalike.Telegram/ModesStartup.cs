@@ -9,8 +9,16 @@ namespace Lagalike.Telegram
 
     using ThingsStore.Services;
 
+    /// <summary>
+    /// Startup of all bot modes (demos).
+    /// </summary>
     public static class ModesStartup
     {
+        /// <summary>
+        /// Add demo modules to DI.
+        /// </summary>
+        /// <param name="services">DI.</param>
+        /// <returns>Returns DI.</returns>
         public static IServiceCollection AddDemoModules(this IServiceCollection services)
         {
             services.AddModule<BackedDialogSystemModule>()
@@ -26,7 +34,7 @@ namespace Lagalike.Telegram
         /// <param name="services">The host service collection.</param>
         /// <typeparam name="TBackedModeSystem">Kekw</typeparam>
         /// <returns>Updated service collection.</returns>
-        public static IServiceCollection AddModule<TBackedModeSystem>(this IServiceCollection services)
+        private static IServiceCollection AddModule<TBackedModeSystem>(this IServiceCollection services)
             where TBackedModeSystem : IBackedModeSystem, new()
         {
             var backedMode = new TBackedModeSystem();

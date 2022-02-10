@@ -8,6 +8,7 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services
     using Lagalike.Telegram.Shared.Contracts;
     using Lagalike.Telegram.Shared.Contracts.PatrickStar.MVU;
 
+    /// <inheritdoc />
     public class HandleUpdateService : BaseMvuUpdateHandlerService<Model, ViewMapper, CommandTypes>
     {
         /// <inheritdoc />

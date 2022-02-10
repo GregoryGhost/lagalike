@@ -8,7 +8,12 @@ namespace Lagalike.Telegram
 
     public class Program
     {
-        public static IHostBuilder CreateHostBuilder(string[] args)
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        private static IHostBuilder CreateHostBuilder(string[] args)
         {
 #if DEBUG
             return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
@@ -20,11 +25,6 @@ namespace Lagalike.Telegram
             return Host.CreateDefaultBuilder(args)
                        .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>().UseUrls("http://*:" + port));
 #endif
-        }
-
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
         }
     }
 }

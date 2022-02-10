@@ -5,11 +5,12 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services.Views
 
     using PatrickStar.MVU;
 
+    /// <inheritdoc />
     public class ViewMapper : BaseMainViewMapper<CommandTypes, ModelTypes>
     {
         /// <inheritdoc />
-        public ViewMapper(ViewFactory viewFactory)
-            : base(viewFactory.GetViews())
+        public ViewMapper(ViewsFactory viewsFactory)
+            : base(viewsFactory.GetViews())
         {
         }
     }

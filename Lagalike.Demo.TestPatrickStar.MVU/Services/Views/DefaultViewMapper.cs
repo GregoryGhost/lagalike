@@ -5,10 +5,17 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services.Views
 
     using PatrickStar.MVU;
 
+    /// <summary>
+    /// A default view mapper which shows actual demo model.
+    /// </summary>
     public class DefaultViewMapper : IViewMapper<CommandTypes>
     {
         private readonly IView<CommandTypes> _menuView;
 
+        /// <summary>
+        /// Initial dependencies.
+        /// </summary>
+        /// <param name="menuView">A demo menu view.</param>
         public DefaultViewMapper(MenuView menuView)
         {
             _menuView = menuView;

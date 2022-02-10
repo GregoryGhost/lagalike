@@ -1,7 +1,10 @@
 namespace Lagalike.Demo.TestPatrickStar.MVU.Commands
 {
     using PatrickStar.MVU;
-
+    
+    /// <summary>
+    /// Command to reset a value of current number for session.
+    /// </summary>
     public record ResetCommand : BaseCommand<CommandTypes>
     {
         /// <inheritdoc />

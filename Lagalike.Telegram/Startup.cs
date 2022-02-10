@@ -12,6 +12,9 @@ namespace Lagalike.Telegram
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
 
+    /// <summary>
+    /// The bot playground startup.
+    /// </summary>
     public class Startup
     {
         private readonly IConfigurationSection _botConfiguration;
@@ -24,7 +27,11 @@ namespace Lagalike.Telegram
             _botConfiguration = configuration.GetSection(TelegramBotConfiguration.CONFIGURATION_SECTION_NAME);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        ///  This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app">configure an application's request pipeline.</param>
+        /// <param name="env">Information about the web hosting environment an application is running in.</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -33,7 +40,10 @@ namespace Lagalike.Telegram
             app.UseHttpsRedirection().UseRouting().UseAuthorization().UseEndpoints(endpoints => endpoints.MapControllers());
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services">Contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigureTelegramMode(services);

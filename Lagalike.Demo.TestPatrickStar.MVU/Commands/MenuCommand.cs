@@ -2,6 +2,9 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Commands
 {
     using PatrickStar.MVU;
 
+    /// <summary>
+    /// Command to return in the demo menu.
+    /// </summary>
     public record MenuCommand : BaseCommand<CommandTypes>
     {
         /// <inheritdoc />

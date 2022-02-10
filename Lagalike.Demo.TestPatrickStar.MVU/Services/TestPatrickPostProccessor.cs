@@ -5,6 +5,7 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services
     using Lagalike.Telegram.Shared.Contracts.PatrickStar.MVU;
     using Lagalike.Telegram.Shared.Services;
 
+    /// <inheritdoc />
     public class TestPatrickPostProccessor : TelegramPostProccessor<CommandTypes>
     {
         /// <inheritdoc />

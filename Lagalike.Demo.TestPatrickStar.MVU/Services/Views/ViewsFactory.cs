@@ -7,11 +7,18 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services.Views
 
     using PatrickStar.MVU;
 
-    public class ViewFactory
+    /// <summary>
+    /// A factory of the all demo views.
+    /// </summary>
+    public class ViewsFactory
     {
         private readonly IDictionary<ModelTypes, IViewMapper<CommandTypes>> _views;
 
-        public ViewFactory(DefaultViewMapper defaultViewMapper)
+        /// <summary>
+        /// Initialize dependencies.
+        /// </summary>
+        /// <param name="defaultViewMapper">A default view mapper of the demo.</param>
+        public ViewsFactory(DefaultViewMapper defaultViewMapper)
         {
             _views = new Dictionary<ModelTypes, IViewMapper<CommandTypes>>
             {
@@ -19,6 +26,10 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services.Views
             };
         }
 
+        /// <summary>
+        /// Get available demo views.
+        /// </summary>
+        /// <returns>Returns available demo views.</returns>
         public IDictionary<ModelTypes, IViewMapper<CommandTypes>> GetViews()
         {
             return _views;

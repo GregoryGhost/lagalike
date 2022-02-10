@@ -2,6 +2,9 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Commands
 {
     using PatrickStar.MVU;
 
+    /// <summary>
+    /// Command to increment a value of current number for session.
+    /// </summary>
     public record IncrementCommand : BaseCommand<CommandTypes>
     {
         /// <inheritdoc />

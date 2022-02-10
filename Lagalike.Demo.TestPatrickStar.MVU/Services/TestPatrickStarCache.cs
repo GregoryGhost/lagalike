@@ -6,6 +6,9 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services
 
     using Microsoft.Extensions.Caching.Memory;
 
+    /// <summary>
+    /// A cache of demo Test Patrick Star.
+    /// </summary>
     public class TestPatrickStarCache : BaseTelegramBotCache<Model>
     {
         /// <inheritdoc />

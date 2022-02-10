@@ -6,6 +6,9 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services
 
     using PatrickStar.MVU;
 
+    /// <summary>
+    /// The demo commands factory.
+    /// </summary>
     public class CommandsFactory
     {
         private static readonly IReadOnlyDictionary<CommandTypes, ICommand<CommandTypes>> Commands =
@@ -16,30 +19,34 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services
                 { CommandTypes.Reset, new ResetCommand() },
                 { CommandTypes.Menu, new MenuCommand() }
             };
-
+        
+        /// <summary>
+        /// Get available commands of the demo.
+        /// </summary>
+        /// <returns></returns>
         public IReadOnlyDictionary<CommandTypes, ICommand<CommandTypes>> GetCommands()
         {
             return Commands;
         }
+        
+        /// <summary>
+        /// Decrement command.
+        /// </summary>
+        public ICommand<CommandTypes> DecrementCommand => Commands[CommandTypes.Decrement];
 
-        public ICommand<CommandTypes> GetDecrementCommand()
-        {
-            return Commands[CommandTypes.Decrement];
-        }
+        /// <summary>
+        /// Increment command.
+        /// </summary>
+        public ICommand<CommandTypes> IncrementCommand => Commands[CommandTypes.Increment];
 
-        public ICommand<CommandTypes> GetIncrementCommand()
-        {
-            return Commands[CommandTypes.Increment];
-        }
+        /// <summary>
+        /// Reset command.
+        /// </summary>
+        public ICommand<CommandTypes> ResetCommand => Commands[CommandTypes.Reset];
 
-        public ICommand<CommandTypes> GetResetCommand()
-        {
-            return Commands[CommandTypes.Reset];
-        }
-
-        public ICommand<CommandTypes> GetMenuCommand()
-        {
-            return Commands[CommandTypes.Menu];
-        }
+        /// <summary>
+        /// Menu command.
+        /// </summary>
+        public ICommand<CommandTypes> MenuCommand => Commands[CommandTypes.Menu];
     }
 }

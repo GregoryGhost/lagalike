@@ -17,7 +17,7 @@ namespace Lagalike.Demo.TestPatrickStar.MVU
                     .AddSingleton<TestPatrickStarInfo>()
                     .AddSingleton<HandleUpdateService>()
                     .AddSingleton<DataFlowManager>()
-                    .AddSingleton<ViewFactory>()
+                    .AddSingleton<ViewsFactory>()
                     .AddSingleton<MenuView>()
                     .AddSingleton<ViewMapper>()
                     .AddSingleton<DefaultViewMapper>()
