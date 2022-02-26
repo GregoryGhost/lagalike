@@ -2,6 +2,10 @@ namespace PatrickStar.MVU
 {
     using System.Diagnostics.CodeAnalysis;
 
+    /// <summary>
+    /// A cache of a model.
+    /// </summary>
+    /// <typeparam name="TItem">A type of a model.</typeparam>
     public interface IModelCache<TItem>
     {
         /// <summary>
