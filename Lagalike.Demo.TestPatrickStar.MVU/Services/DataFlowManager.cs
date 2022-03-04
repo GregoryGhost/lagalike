@@ -73,7 +73,7 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services
         public IPostProccessor<CommandTypes, TelegramUpdate> PostProccessor { get; init; }
 
         /// <inheritdoc />
-        public IUpdater<CommandTypes> Updater { get; init; }
+        public IUpdater<CommandTypes, Model> Updater { get; init; }
 
         /// <inheritdoc />
         public ViewMapper ViewMapper { get; init; }

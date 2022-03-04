@@ -9,31 +9,26 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services
     using PatrickStar.MVU;
 
     /// <inheritdoc />
-    public class TestPatrickUpdater : IUpdater<CommandTypes>
+    public class TestPatrickUpdater : IUpdater<CommandTypes, Model>
     {
         /// <inheritdoc />
-        public async Task<(ICommand<CommandTypes>? OutputCommand, IModel UpdatedModel)> UpdateAsync(ICommand<CommandTypes> command, IModel model)
+        public async Task<(ICommand<CommandTypes>? OutputCommand, Model UpdatedModel)> UpdateAsync(ICommand<CommandTypes> command, Model model)
         {
-            var castedModel = model switch
-            {
-                Model m1 => m1,
-                _ => throw new ArgumentOutOfRangeException($"Unknown {nameof(model)} type: {model}")
-            };
             var updatedModel = command.Type switch
             {
-                CommandTypes.Increment => castedModel with
+                CommandTypes.Increment => model with
                 {
-                    CurrentNumber = castedModel.CurrentNumber + 1
+                    CurrentNumber = model.CurrentNumber + 1
                 },
-                CommandTypes.Decrement => castedModel with
+                CommandTypes.Decrement => model with
                 {
-                    CurrentNumber = castedModel.CurrentNumber - 1
+                    CurrentNumber = model.CurrentNumber - 1
                 },
-                CommandTypes.Reset => castedModel with
+                CommandTypes.Reset => model with
                 {
                     CurrentNumber = 0
                 },
-                CommandTypes.Menu => castedModel,
+                CommandTypes.Menu => model,
                 _ => throw new ArgumentOutOfRangeException($"Unknown {nameof(command)}: {command}") 
             };
             ICommand<CommandTypes> emptyCmd = null!;

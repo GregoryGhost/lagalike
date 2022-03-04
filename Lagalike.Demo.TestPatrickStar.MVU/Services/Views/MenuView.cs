@@ -5,40 +5,62 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services.Views
     using PatrickStar.MVU;
 
     /// <summary>
-    /// A demo mene view.
+    ///     A demo menu view.
     /// </summary>
     public record MenuView : BaseMenuView<CommandTypes>
     {
-        private readonly CommandsFactory _commandsFactory;
+        private readonly Menu<CommandTypes> _initialMenu;
 
         /// <summary>
-        /// Initialize dependencies.
+        ///     Initialize dependencies.
         /// </summary>
         /// <param name="commandsFactory">A factory which contains all commands of the mode.</param>
         public MenuView(CommandsFactory commandsFactory)
         {
-            _commandsFactory = commandsFactory;
             Menu = new MenuBuilder<CommandTypes>()
                    .Row()
                    .Button("+1", commandsFactory.IncrementCommand)
                    .Button("-1", commandsFactory.DecrementCommand)
                    .Button("Reset", commandsFactory.ResetCommand)
                    .Build("Current value: 0");
+            _initialMenu = new MenuBuilder<CommandTypes>()
+                           .Row()
+                           .Button("+1", commandsFactory.IncrementCommand)
+                           .Button("-1", commandsFactory.DecrementCommand)
+                           .Build("Current value: 0");
         }
 
         /// <inheritdoc />
         public override IView<CommandTypes> Update(Menu<CommandTypes> sourceMenu)
         {
-            var updatedMenu = sourceMenu with
+            var view = this with
             {
-                Buttons = Menu.Buttons
+                Menu = sourceMenu
             };
-            var view = new MenuView(_commandsFactory)
-            {
-                Menu = updatedMenu
-            };
-            
+
             return view;
+        }
+
+        /// <summary>
+        ///     Update the view menu.
+        /// </summary>
+        /// <param name="newNumber">A new number for current value.</param>
+        /// <returns>Return a updated view.</returns>
+        public IView<CommandTypes> UpdateMenu(int newNumber)
+        {
+            var msg = Menu.MessageElement with
+            {
+                Text = $"Current value: {newNumber}"
+            };
+            var menu = newNumber == 0
+                ? _initialMenu
+                : Menu;
+            var updatedMenu = menu with
+            {
+                MessageElement = msg,
+            };
+
+            return Update(updatedMenu);
         }
     }
 }

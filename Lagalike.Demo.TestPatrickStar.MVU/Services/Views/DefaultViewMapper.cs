@@ -1,5 +1,7 @@
 namespace Lagalike.Demo.TestPatrickStar.MVU.Services.Views
 {
+    using System.Linq;
+
     using Lagalike.Demo.TestPatrickStar.MVU.Commands;
     using Lagalike.Demo.TestPatrickStar.MVU.Models;
 
@@ -10,7 +12,7 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services.Views
     /// </summary>
     public class DefaultViewMapper : IViewMapper<CommandTypes>
     {
-        private readonly IView<CommandTypes> _menuView;
+        private readonly MenuView _menuView;
 
         /// <summary>
         /// Initial dependencies.
@@ -25,15 +27,7 @@ namespace Lagalike.Demo.TestPatrickStar.MVU.Services.Views
         public IView<CommandTypes> Map(IModel model)
         {
             var defaultModel = (Model)model;
-            var msg = _menuView.Menu.MessageElement with
-            {
-                Text = $"Current value: {defaultModel.CurrentNumber}"
-            };
-            var updatedMenu = _menuView.Menu with
-            {
-                MessageElement = msg
-            };
-            var menu = _menuView.Update(updatedMenu);
+            var menu = _menuView.UpdateMenu(defaultModel.CurrentNumber);
 
             return menu;
         }

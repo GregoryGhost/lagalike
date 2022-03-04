@@ -98,7 +98,7 @@
     /// <typeparam name="TCommandType">A command type.</typeparam>
     public interface IDataFlowManager<TModel, TViewMapper,
         TUpdate, TCommandType>
-        where TModel : IModel
+        where TModel : IModel, IEquatable<TModel>
         where TViewMapper : IViewMapper<TCommandType>
         where TCommandType : Enum
         where TUpdate : IUpdate
@@ -116,7 +116,7 @@
         /// <summary>
         /// A model updater which update a model by a triggered command.
         /// </summary>
-        IUpdater<TCommandType> Updater { get; init; }
+        IUpdater<TCommandType, TModel> Updater { get; init; }
 
         /// <summary>
         /// A view mapper which update view by actual model.
@@ -153,19 +153,52 @@
         /// <param name="update">A new update for a model.</param>
         async Task ProccessCommandAsync(ICommand<TCommandType> command, string chatId, TUpdate update)
         {
-            if (!Model.TryGetValue(chatId, out var model))
-            {
-                model = InitialModel;
-            }
+            var (isInitialModelState, model) = GetModelByChatId(chatId);
             var (outputCommand, updatedModel) = await Updater.UpdateAsync(command, model).ConfigureAwait(false);
-            Model.Set(chatId, (TModel)updatedModel);
-            var view = ViewMapper.Map(updatedModel);
-            await PostProccessor.ProccessAsync(view, update).ConfigureAwait(false);
-            
+
+            var info = new UpdateViewInfo
+            {
+                ChatId = chatId,
+                UpdateInfo = update,
+                UpdatedModel = updatedModel,
+                SourceModel = model,
+                IsInitialModelState = isInitialModelState
+            };
+            await UpdateView(info).ConfigureAwait(false);
+
             if (outputCommand != null)
             {
                 await ProccessCommandAsync(outputCommand, chatId, update).ConfigureAwait(false);
             }
+        }
+
+        private async Task UpdateView(UpdateViewInfo info)
+        {
+            var wasUpdatedModel = !info.UpdatedModel.Equals(info.SourceModel);
+            var needToUpdateModel = wasUpdatedModel || info.IsInitialModelState;
+            if (needToUpdateModel)
+            {
+                Model.Set(info.ChatId, info.UpdatedModel);
+
+                var view = ViewMapper.Map(info.UpdatedModel);
+                await PostProccessor.ProccessAsync(view, info.UpdateInfo).ConfigureAwait(false);
+            }
+        }
+
+        private (bool isInitialModelState, TModel model) GetModelByChatId(string chatId)
+        {
+            var isInitialModelState = !Model.TryGetValue(chatId, out var model);
+            
+            return (isInitialModelState, model ?? InitialModel);
+        }
+
+        private struct UpdateViewInfo
+        {
+            public string ChatId { get; init; }
+            public TUpdate UpdateInfo { get; init; }
+            public TModel UpdatedModel { get; init; }
+            public TModel SourceModel { get; init; }
+            public bool IsInitialModelState { get; init; }
         }
     }
     
@@ -228,7 +261,7 @@
         }
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="PatrickStar.MVU.IView{TCommandType}" />
     public abstract record BaseMenuView<TCommandType> : IView<TCommandType>
         where TCommandType : Enum
     {
@@ -243,8 +276,10 @@
     /// A model updater which update a model by a triggered command.
     /// </summary>
     /// <typeparam name="TCommandType">An available command types.</typeparam>
-    public interface IUpdater<TCommandType>
+    /// <typeparam name="TModel">An model type.</typeparam>
+    public interface IUpdater<TCommandType, TModel>
         where TCommandType : Enum
+        where TModel : IModel, IEquatable<TModel>
     {
         /// <summary>
         /// Update a model by a triggered command.
@@ -252,8 +287,8 @@
         /// <param name="command">A triggered command.</param>
         /// <param name="model">A updating model.</param>
         /// <returns>Returns an possible output command and an updated model.</returns>
-        Task<(ICommand<TCommandType>? OutputCommand, IModel UpdatedModel)> UpdateAsync(ICommand<TCommandType> command,
-            IModel model);
+        Task<(ICommand<TCommandType>? OutputCommand, TModel UpdatedModel)> UpdateAsync(ICommand<TCommandType> command,
+            TModel model);
     }
 
     /// <summary>

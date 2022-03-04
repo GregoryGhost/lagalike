@@ -10,7 +10,7 @@ namespace Lagalike.Telegram.Shared.Contracts.PatrickStar.MVU
 
     /// <inheritdoc />
     public abstract class BaseMvuUpdateHandlerService<TModel, TViewMapper, TCommandType> : ITelegramUpdateHandler
-        where TModel : IModel
+        where TModel : IModel, IEquatable<TModel>
         where TViewMapper : IViewMapper<TCommandType>
         where TCommandType : Enum
     {

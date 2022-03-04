@@ -61,7 +61,7 @@ namespace PatrickStar.MVU.Tests
 
     public class DataFlowManager : IDataFlowManager<Model1, MainViewMapper, TestUpdate, CmdType>
     {
-        public DataFlowManager(IModelCache<Model1> model, IPostProccessor<CmdType, TestUpdate> postProccessor, IUpdater<CmdType> updater, MainViewMapper viewMapper)
+        public DataFlowManager(IModelCache<Model1> model, IPostProccessor<CmdType, TestUpdate> postProccessor, IUpdater<CmdType, Model1> updater, MainViewMapper viewMapper)
         {
             Model = model;
             PostProccessor = postProccessor;
@@ -80,7 +80,7 @@ namespace PatrickStar.MVU.Tests
         public IPostProccessor<CmdType, TestUpdate> PostProccessor { get; init; }
 
         /// <inheritdoc />
-        public IUpdater<CmdType> Updater { get; init; }
+        public IUpdater<CmdType, Model1> Updater { get; init; }
 
         /// <inheritdoc />
         public MainViewMapper ViewMapper { get; init; }
@@ -119,17 +119,12 @@ namespace PatrickStar.MVU.Tests
         }
     }
 
-    public class TestUpdater : IUpdater<CmdType>
+    public class TestUpdater : IUpdater<CmdType, Model1>
     {
         /// <inheritdoc />
-        public async Task<(ICommand<CmdType>? OutputCommand, IModel UpdatedModel)> UpdateAsync(ICommand<CmdType> command,
-            IModel model)
+        public async Task<(ICommand<CmdType>? OutputCommand, Model1 UpdatedModel)> UpdateAsync(ICommand<CmdType> command,
+            Model1 model)
         {
-            var castedModel = model switch
-            {
-                Model1 m1 => m1,
-                _ => throw new ArgumentOutOfRangeException($"Unknown {nameof(model)} type: {model}")
-            };
             var outputCmd = command.Type switch
             {
                 CmdType.Cmd1 => null,
@@ -137,7 +132,7 @@ namespace PatrickStar.MVU.Tests
                 CmdType.Cmd3Repeated => null,
                 _ => throw new ArgumentOutOfRangeException($"Unknown {nameof(command)}: {command}") 
             };
-            var updatedModel = castedModel with
+            var updatedModel = model with
             {
                Test = true,
                GotTestCmd2Repeated = command.Type is CmdType.Cmd3Repeated
