@@ -15,10 +15,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Lagalike.Demo.DialogSystem\Lagalike.Demo.DialogSystem.csproj" />
-        <ProjectReference Include="..\Lagalike.Demo.TestPatrickStar.MVU\Lagalike.Demo.TestPatrickStar.MVU.csproj" />
+        <ProjectReference Include="..\..\Demos\Lagalike.Demo.DialogSystem\Lagalike.Demo.DialogSystem.csproj" />
+        <ProjectReference Include="..\..\Demos\Lagalike.Demo.TestPatrickStar.MVU\Lagalike.Demo.TestPatrickStar.MVU.csproj" />
+        <ProjectReference Include="..\..\Demos\Lagalike.Demo.ThingsStoreSystem\Lagalike.Demo.ThingsStoreSystem.csproj" />
         <ProjectReference Include="..\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj" />
-        <ProjectReference Include="..\Lagalike.Demo.ThingsStoreSystem\Lagalike.Demo.ThingsStoreSystem.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "GregoryGhost",
+  "classifications": [ "Common", "Lagalike.Demo.MVU" ],
+  "identity": "Lagalike.Demo.MVU",
+  "name": "Lagalike a demo Patrick Star MVU template",
+  "shortName": "lagalike-mvu-demo",
+  "sourceName": "Lagalike.Demo.MVU",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  }
+}

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <WarningsAsErrors>Nullable</WarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Core\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj" />
+      <ProjectReference Include="..\..\..\Lagalike.Telegram.Shared\Lagalike.Telegram.Shared.csproj" />
+      <ProjectReference Include="..\..\..\Packages\PatrickStar.MVU\PatrickStar.MVU.csproj" />
+      <ProjectReference Include="..\..\..\PatrickStar.MVU\PatrickStar.MVU.csproj" />
+    </ItemGroup>
+
+</Project>

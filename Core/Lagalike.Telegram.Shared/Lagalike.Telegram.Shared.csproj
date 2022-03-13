@@ -28,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PatrickStar.MVU\PatrickStar.MVU.csproj" />
+      <ProjectReference Include="..\..\Packages\PatrickStar.MVU\PatrickStar.MVU.csproj" />
     </ItemGroup>
 
 </Project>
