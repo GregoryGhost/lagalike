@@ -1,7 +1,7 @@
 namespace Lagalike.Telegram
 {
+    using Lagalike.Demo.CockSizer.MVU.Services.ModuleSettings;
     using Lagalike.Demo.DialogSystem.Services;
-    using Lagalike.Demo.TestPatrickStar.MVU.Services;
     using Lagalike.Demo.TestPatrickStar.MVU.Services.ModuleSettings;
     using Lagalike.Telegram.Shared.Contracts;
 
@@ -23,7 +23,8 @@ namespace Lagalike.Telegram
         {
             services.AddModule<BackedDialogSystemModule>()
                     .AddModule<BackedThingsStoreSystemModule>()
-                    .AddModule<BackedTestPatrickStarSystemModule>();
+                    .AddModule<BackedTestPatrickStarSystemModule>()
+                    .AddModule<BackedCockSizerSystemModule>();
 
             return services;
         }

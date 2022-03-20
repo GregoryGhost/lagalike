@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThingStore.Tests", "Package
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lagalike.Demo.ThingsStoreSystem.MVU", "Demos\Lagalike.Demo.ThingsStoreSystem.MVU\Lagalike.Demo.ThingsStoreSystem.MVU\Lagalike.Demo.ThingsStoreSystem.MVU.csproj", "{232F7E4C-05C1-4623-B566-FDB6128444F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lagalike.Demo.CockSizer.MVU", "Demos\Lagalike.Demo.CockSizer.MVU\Lagalike.Demo.CockSizer.MVU\Lagalike.Demo.CockSizer.MVU.csproj", "{48DA4846-667C-4944-85D1-07CD0D16E6DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -98,6 +100,10 @@ Global
 		{232F7E4C-05C1-4623-B566-FDB6128444F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{232F7E4C-05C1-4623-B566-FDB6128444F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{232F7E4C-05C1-4623-B566-FDB6128444F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48DA4846-667C-4944-85D1-07CD0D16E6DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48DA4846-667C-4944-85D1-07CD0D16E6DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48DA4846-667C-4944-85D1-07CD0D16E6DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48DA4846-667C-4944-85D1-07CD0D16E6DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5D1CE972-3AB2-4899-B93E-6D55905169DB} = {105BFDE1-2FF5-4E0D-A2D7-A3C412FF7255}
@@ -116,5 +122,6 @@ Global
 		{2E8632FB-6CF7-4DE7-B113-F83898F1E55B} = {885DFD2E-C868-41B9-ACF8-C2883EC9691C}
 		{28CDA19A-4F65-46EC-A52C-98DC0D46BF28} = {885DFD2E-C868-41B9-ACF8-C2883EC9691C}
 		{232F7E4C-05C1-4623-B566-FDB6128444F2} = {5AC3D20D-AF7C-4C83-AB1F-96E9C9A2540F}
+		{48DA4846-667C-4944-85D1-07CD0D16E6DA} = {5AC3D20D-AF7C-4C83-AB1F-96E9C9A2540F}
 	EndGlobalSection
 EndGlobal
